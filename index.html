@@ -71,12 +71,12 @@
 </body>
 <script type="text/javascript">
   var userSelection = []
-  // var url = "http://localhost:5000/";
-  var url = "http://192.41.170.50:5000/"
+  // var apiurl = "http://localhost:5000/";
+  var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
     expand = expand || {};
-    $.get(url + "classlist", function (data) {
+    $.get(apiurl + "classlist", function (data) {
       json = jQuery.parseJSON(JSON.stringify(data));
       $(data).each(function () {
         $("#node_list").append("<div onclick='addNode(\"" + this.class + "\")'>" + this.class + "</div>");
@@ -258,7 +258,7 @@
 
     $.ajax({
       type: "POST",
-      url: url + "class",
+      url: apiurl + "class",
       data: { 'class': JSON.stringify(userSelection) }
     }).done(function (json) {
       // d3.json("miserables.json", function (json) {
