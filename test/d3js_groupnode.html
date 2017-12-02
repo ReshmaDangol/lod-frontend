@@ -4,9 +4,9 @@
 
 <head>
   <title>Clustered Network</title>
-  <script src="../static/js/jquery-3.2.1.min.js"></script>
-  <script src="../static/js/d3.v2.js"></script>
-  <!-- <script src="../static/js/jsonQ.min.js"></script> -->
+  <script src="../js/jquery-3.2.1.min.js"></script>
+  <script src="../js/d3.v2.js"></script>
+  <!-- <script src="../js/jsonQ.min.js"></script> -->
   <style type="text/css">
     body {
       font: 10px sans-serif;
@@ -51,12 +51,89 @@
       z-index: 1;
       background: #F0EDED;
     }
+
+
+
+    .class,
+    .set_path,
+    .fineline {
+      stroke: #000;
+    }
+
+    .class,
+    .object,
+    .disjoint {
+      fill: #acf;
+    }
+
+    .special {
+      stroke-dasharray: 8;
+      fill: #fff !important;
+    }
+
+
+    .symbol {
+      fill: #69c;
+    }
+
+    .nostroke {
+
+      stroke: none;
+    }
+
+
+    .nofill {
+      fill: none;
+    }
   </style>
 </head>
 
 <body>
+  <svg id="set">
+    <!-- <g>
+      <g transform="translate(130, 35)">
+        <circle class="class special" r="25"></circle>
+        <g class="embedded" transform="translate(-5,0)">
+          <path class="nostroke symbol" d="m 5,-13 c 5,2.5 8.5,7.5 8.5,13 0,5 -3,10 -8.5,13 -5,-2.5 -8.5,-7.5 -8.5,-13 0,-5 3,-10 8.5,-13"></path>
+          <circle class="nofill fineline" r="14"></circle>
+          <circle cx="10" class="nofill fineline" r="14"></circle>
+          <path class="nofill" d="m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6"></path>
+        </g>
+      </g> -->
+    </g>
+  </svg>
+  <div id="svgarea"></div>
   <div id="expandDiv"></div>
   <script type="text/javascript">
+    var set = d3.select("#set").append("g").attr({ "transform": "translate(150,50)" })
+    set.append("circle")
+      .attr("class", "class special")
+      .attr("r", 25)
+
+    set_g = set.append("g")
+      .attr("class", "embedded")
+      .attr("transform", "translate(-5,0)")
+
+    set_g.append("path")
+      .attr("class", "nostroke symbol set_path")
+      .attr("d", "m 5,-13 c 5,2.5 8.5,7.5 8.5,13 0,5 -3,10 -8.5,13 -5,-2.5 -8.5,-7.5 -8.5,-13 0,-5 3,-10 8.5,-13")
+
+    set_g.append("circle")
+      .attr("class", "nofill fineline")
+      .attr("r", 14)
+
+    set_g.append("circle")
+      .attr("class", "nofill fineline")
+      .attr("r", 14)
+      .attr("cx", 10)
+
+    set_g.append("path")
+      .attr("class", "nofill set_path")
+      .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
+
+
+
+
     var width = $("body").width(),     // svg width
       height = 600,     // svg height
       dr = 10,      // default point radius
@@ -116,7 +193,7 @@
 
         var n = data.nodes[k],
           i = index(n),
-          l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, equivalent: n.equivalent });
+          l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, equivalent: n.equivalent, intersect: n.intersect });
         if (expand[i]) {
           // the node should be directly visible
           nm[n.name] = nodes.length;
@@ -158,7 +235,7 @@
         u = expand[u] ? nm[e.source.name] : nm[u];
         v = expand[v] ? nm[e.target.name] : nm[v];
         var i = (u < v ? u + "|" + v : v + "|" + u),
-          l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection });
+          l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect });
         l.size += 1;
       }
 
@@ -198,7 +275,7 @@
 
     // --------------------------------------------------------
 
-    var body = d3.select("body");
+    var body = d3.select("#svgarea");
 
     var vis = body.append("svg")
       .attr("width", width)
@@ -357,7 +434,15 @@
           else return false;
         })
         .attr('marker-end', function (d) {
-          return 'url(#endarrowhead' + d.target.name + ')';
+          if (d.intersect == 1)
+            return false;
+          else
+            return 'url(#endarrowhead' + d.target.name + ')';
+        })
+        .attr("stroke-dasharray", function (d) {
+          if (d.intersect == 1)
+            return 8;
+          else return 0;
         })
 
       link.on("click", function (d) {
@@ -388,16 +473,23 @@
             return "block";
           else
             return "none";
-
         })
 
       newnode.append("circle")
         // if (d.size) -- d.size > 0 when d is a group node.
         .attr("class", function (d) {
-          return "node" + (d.size ? "" : " leaf");
+          circle_class = ''
+          if (d.intersect == 1)
+            circle_class = 'class special'
+          return circle_class + " node" + (d.size ? "" : " leaf");
+        })
+        .attr("id", function (d) {
+          return d.name
         })
         .attr("r", function (d) {
-          return (d.size ? d.size + dr : dr + 1) * 3 + 4; //size of circles
+          if (d.intersect == 1) return 25;
+          else
+            return (d.size ? d.size + dr : dr + 1) * 3 + 4; //size of circles
         })
         // .style("fill", function (d) { return fill(d.group); })
         .on("click", function (d) {
@@ -405,6 +497,33 @@
           if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
           init();
         })
+
+      set = node.filter(function (d) {
+        return d.intersect == 1;
+      })
+      console.log(set)
+      set_g = set.append("g")
+        .attr("class", "embedded")
+        .attr("transform", "translate(-5,0)")
+
+      set_g.append("path")
+        .attr("class", "nostroke symbol")
+        .attr("d", "m 5,-13 c 5,2.5 8.5,7.5 8.5,13 0,5 -3,10 -8.5,13 -5,-2.5 -8.5,-7.5 -8.5,-13 0,-5 3,-10 8.5,-13")
+
+      set_g.append("circle")
+        .attr("class", "nofill fineline set_path")
+        .attr("r", 14)
+
+      set_g.append("circle")
+        .attr("class", "nofill fineline")
+        .attr("r", 14)
+        .attr("cx", 10)
+
+      set_g.append("path")
+        .attr("class", "nofill set_path")
+        .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
+
+
 
       newnode.append("text").attr("class", "node_label")
         .text(function (d) { return d.name });
@@ -455,7 +574,7 @@
 
 
     function expandLink() {
-      
+
       d3.select("#expandDiv svg").remove();
       var svg_ = d3.select("#expandDiv").append("svg")
         .attr("width", 300)
@@ -465,7 +584,7 @@
         .attr("class", "marker")
         .attr({
           'viewBox': '-0 -5 10 10',
-          'refX':10,
+          'refX': 10,
           'refY': 0,
           'orient': 'auto',
           'markerWidth': 13,
@@ -479,11 +598,11 @@
         .attr('fill', '#999')
         .style('stroke', 'none');
 
-        svg_.append("marker")
+      svg_.append("marker")
         .attr("class", "marker")
         .attr({
           'viewBox': '-0 -5 10 10',
-          'refX':0,
+          'refX': 0,
           'refY': 0,
           'orient': 'auto',
           'markerWidth': 13,
@@ -528,11 +647,11 @@
 
 
       var g = svg_//.append("g")
-        g.append("path")
+      g.append("path")
         .style("stroke", "black")
         .style("fill", "black")
         .attr("id", "link2a")
-        .attr("d","M 50 50 L 250 50")
+        .attr("d", "M 50 50 L 250 50")
         // .attr("x1", 50)
         // .attr("y1", 50)
         // .attr("x2", 250)
@@ -547,9 +666,9 @@
         .attr('marker-start', function (d) {
           return 'url(#arrowhead)';
         })
-        // g.append("text").text("test")
-       
-      
+      // g.append("text").text("test")
+
+
 
 
       svg_.append("line")
@@ -563,16 +682,18 @@
         .attr("data-x2", 250)
         .attr("data-y2", 30);
 
-        var edgelabels= svg_.append('text')
+      var edgelabels = svg_.append('text')
         .style("pointer-events", "none")
-        .attr({'class':'edgelabel',
-              //  'id':function(d,i){return 'edgelabel'+i},
-               'dx':80,
-               'dy':0,
-               'font-size':10,
-               'fill':'#aaa'});
-        edgelabels.append('textPath')
-        .attr('href',"link2a")
+        .attr({
+          'class': 'edgelabel',
+          //  'id':function(d,i){return 'edgelabel'+i},
+          'dx': 80,
+          'dy': 0,
+          'font-size': 10,
+          'fill': '#aaa'
+        });
+      edgelabels.append('textPath')
+        .attr('href', "link2a")
         .style("pointer-events", "none")
         .text("function(d,i){return 'label '+i}");
     }
