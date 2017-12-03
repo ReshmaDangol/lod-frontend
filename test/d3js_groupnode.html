@@ -22,20 +22,23 @@
       /* stroke: #fff; */
     }
 
-    path.hull {
+    .hull {
       fill: lightsteelblue;
       fill-opacity: 0.3;
     }
 
-    line.link {
+   .link {
       stroke: #999;
       stroke-width: 2;
       cursor: pointer;
+      fill-opacity: 0;
+      stroke-opacity: 1;
+
       /* stroke-opacity: 0.5; */
       /* pointer-events: none; */
     }
 
-    line.link:hover {
+    .hoveraction:hover {
       stroke-width: 11;
     }
 
@@ -193,7 +196,7 @@
 
         var n = data.nodes[k],
           i = index(n),
-          l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, equivalent: n.equivalent, intersect: n.intersect });
+          l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass });
         if (expand[i]) {
           // the node should be directly visible
           nm[n.name] = nodes.length;
@@ -228,19 +231,22 @@
         var e = data.links[k],
           u = index(e.source),
           v = index(e.target);
+          console.log(e.source.name,e.target.name,u,v)
         if (u != v) {
           gm[u].link_count++;
           gm[v].link_count++;
         }
         u = expand[u] ? nm[e.source.name] : nm[u];
         v = expand[v] ? nm[e.target.name] : nm[v];
-        var i = (u < v ? u + "|" + v : v + "|" + u),
-          l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect });
+        console.log(u,v)
+        var i = u + "|" + v + "|" +e.bidirection; //(u < v ? u + "|" + v : v + "|" + u); 
+        var l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect, subclass: e.subclass });
         l.size += 1;
+        console.log(i)
       }
 
       for (i in lm) { links.push(lm[i]); }
-
+      console.log(links)
       return { nodes: nodes, links: links };
     }
 
@@ -419,14 +425,25 @@
           expand[d.group] = false; init();
         });
 
-      link = linkg.selectAll("line.link").data(net.links, linkid);
+      link = linkg.selectAll("path.link").data(net.links, linkid);
       link.exit().remove();
-      link.enter().append("line")
-        .attr("class", "link")
-        .attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; })
+      link.enter().append("path")
+        // .attr("d", function (d) {
+        //   var dx = d.target.x - d.source.x,
+        //     dy = d.target.y - d.source.y,
+        //     dr = 75 / 1;  //linknum is defined above
+        
+        //     dr = Math.sqrt(dx * dx + dy * dy);
+        //   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+        // })
+        .attr("class", function (d) {
+          if (d.intersect == 1 || d.subclass == 1) return "link";
+          else return "link hoveraction"
+        })
+        // .attr("x1", function (d) { return d.source.x; })
+        // .attr("y1", function (d) { return d.source.y; })
+        // .attr("x2", function (d) { return d.target.x; })
+        // .attr("y2", function (d) { return d.target.y; })
         //.style("stroke-width", function (d) { return d.size || 1; })
         .attr('marker-start', function (d) {
           if (d.bidirection == 1)
@@ -440,10 +457,11 @@
             return 'url(#endarrowhead' + d.target.name + ')';
         })
         .attr("stroke-dasharray", function (d) {
-          if (d.intersect == 1)
+          if (d.intersect == 1 || d.subclass == 1)
             return 8;
           else return 0;
         })
+
 
       link.on("click", function (d) {
         console.log(d)
@@ -491,6 +509,11 @@
           else
             return (d.size ? d.size + dr : dr + 1) * 3 + 4; //size of circles
         })
+        .style("cursor", function (d) {
+          if (typeof expand[d.group] != "undefined" || expand[d.group] == true || d.size == 1) return "default";
+          else return "pointer";
+
+        })
         // .style("fill", function (d) { return fill(d.group); })
         .on("click", function (d) {
           if (typeof d.group == "undefined") return;
@@ -501,7 +524,7 @@
       set = node.filter(function (d) {
         return d.intersect == 1;
       })
-      console.log(set)
+      
       set_g = set.append("g")
         .attr("class", "embedded")
         .attr("transform", "translate(-5,0)")
@@ -550,11 +573,18 @@
         edgepaths.attr('d', function (d) {
           return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
         });
-
+        
         link.attr("x1", function (d) { return d.source.x; })
           .attr("y1", function (d) { return d.source.y; })
           .attr("x2", function (d) { return d.target.x; })
           .attr("y2", function (d) { return d.target.y; })
+          .attr("d", function (d) {
+            var dx = d.target.x - d.source.x,
+              dy = d.target.y - d.source.y,
+              dr = 0;
+              if(d.subclass==1) dr= Math.sqrt(dx * dx + dy * dy);
+            return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+          })
           .attr('display', function (d) {
             var x1 = $(this).attr("x1")
             var x2 = $(this).attr("x2")
