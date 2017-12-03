@@ -5,7 +5,9 @@
 <head>
   <title>Clustered Network</title>
   <script src="../js/jquery-3.2.1.min.js"></script>
+  <script src="../js/jquery-ui.js"></script>
   <script src="../js/d3.v2.js"></script>
+  <link rel="../css/jquery-ui.css"></link>
   <!-- <script src="../js/jsonQ.min.js"></script> -->
   <style type="text/css">
     body {
@@ -13,7 +15,7 @@
     }
 
     circle.node {
-      fill: transparent;
+      fill: #fff;
       stroke: #555;
       min-width: 30px;
     }
@@ -27,15 +29,19 @@
       fill-opacity: 0.3;
     }
 
-   .link {
+    .link {
       stroke: #999;
       stroke-width: 2;
-      cursor: pointer;
       fill-opacity: 0;
       stroke-opacity: 1;
-
+      stroke-dasharray: 8;
       /* stroke-opacity: 0.5; */
       /* pointer-events: none; */
+    }
+
+    .hoveraction {
+      cursor: pointer;
+      stroke-dasharray: 0;
     }
 
     .hoveraction:hover {
@@ -52,10 +58,10 @@
     #expandDiv {
       position: absolute;
       z-index: 1;
-      background: #F0EDED;
+      background: rgba(254,254,254,0.7);
+      border-radius: 10px;
+      border: 1px  solid #ccc;
     }
-
-
 
     .class,
     .set_path,
@@ -106,8 +112,11 @@
     </g>
   </svg>
   <div id="svgarea"></div>
-  <div id="expandDiv"></div>
+  <div id="expandDiv" class="ui-widget-content"></div>
   <script type="text/javascript">
+    $( function() {
+    $( "#expandDiv" ).draggable();
+  } );
     var set = d3.select("#set").append("g").attr({ "transform": "translate(150,50)" })
     set.append("circle")
       .attr("class", "class special")
@@ -231,16 +240,16 @@
         var e = data.links[k],
           u = index(e.source),
           v = index(e.target);
-          console.log(e.source.name,e.target.name,u,v)
+        console.log(e.source.name, e.target.name, u, v)
         if (u != v) {
           gm[u].link_count++;
           gm[v].link_count++;
         }
         u = expand[u] ? nm[e.source.name] : nm[u];
         v = expand[v] ? nm[e.target.name] : nm[v];
-        console.log(u,v)
-        var i = u + "|" + v + "|" +e.bidirection; //(u < v ? u + "|" + v : v + "|" + u); 
-        var l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect, subclass: e.subclass });
+        console.log(u, v)
+        var i = u + "|" + v + "|" + e.bidirection; //(u < v ? u + "|" + v : v + "|" + u); 
+        var l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect, subclass: e.subclass, linkid: e.linkid });
         l.size += 1;
         console.log(i)
       }
@@ -380,7 +389,7 @@
           return "arrowhead" + d.source.name;
         })
         .attr("refX", function (d) {
-          return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 10;    // Add the marker's width               
+          return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width               
         })
         .append('svg:path')
         .attr('d', 'M0,0L10,-5L10,5Z')
@@ -394,7 +403,7 @@
         .attr("class", "marker")
         .attr({
           'viewBox': '-0 -5 10 10',
-          'refY': 0,
+          // 'refY': -3,
           'orient': 'auto',
           'markerWidth': 13,
           'markerHeight': 13,
@@ -402,15 +411,25 @@
           'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-          return "endarrowhead" + d.target.name;
+          return "endarrowhead" + d.target.name + d.linkid;
         })
         .attr("refX", function (d) {
-          return (d.target.size ? d.target.size + dr : dr + 1) * 3;    // Add the marker's width               
+          return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width               
         })
+        .attr("refY", function (d) {
+          console.log(d.subclass, d.target.name, d.source.name, d.linkid)
+          if (d.subclass == 1)
+            return -4;
+          // else return -2.5;
+        })
+
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
         .attr('fill', '#999')
-        .style('stroke', 'none');
+        .style('stroke', 'none')
+
+
+
 
       hullg.selectAll("path.hull").remove();
       hull = hullg.selectAll("path.hull")
@@ -432,7 +451,7 @@
         //   var dx = d.target.x - d.source.x,
         //     dy = d.target.y - d.source.y,
         //     dr = 75 / 1;  //linknum is defined above
-        
+
         //     dr = Math.sqrt(dx * dx + dy * dy);
         //   return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
         // })
@@ -454,16 +473,14 @@
           if (d.intersect == 1)
             return false;
           else
-            return 'url(#endarrowhead' + d.target.name + ')';
-        })
-        .attr("stroke-dasharray", function (d) {
-          if (d.intersect == 1 || d.subclass == 1)
-            return 8;
-          else return 0;
-        })
+            return 'url(#endarrowhead' + d.target.name + d.linkid + ')';
+        });
 
 
-      link.on("click", function (d) {
+
+      link.filter(function (d) {
+        return d.intersect != 1 && d.subclass != 1
+      }).on("click", function (d) {
         console.log(d)
         expandLink();
       });
@@ -472,26 +489,6 @@
       node.exit().remove();
       var newnode = node.enter().append("g")
 
-      newnode.append("circle")
-        // if (d.size) -- d.size > 0 when d is a group node.
-        .attr("class", function (d) {
-          return "node" + (d.size ? "" : " leaf");
-        })
-        .attr("r", function (d) {
-          return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
-        })
-        // .style("fill", function (d) { return fill(d.group); })
-        .on("click", function (d) {
-          if (typeof d.group == "undefined") return;
-          if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
-          init();
-        })
-        .attr("display", function (d) {
-          if (d.equivalent == 1 && !$(this).hasClass("leaf"))
-            return "block";
-          else
-            return "none";
-        })
 
       newnode.append("circle")
         // if (d.size) -- d.size > 0 when d is a group node.
@@ -521,10 +518,31 @@
           init();
         })
 
+
+        newnode.append("circle")
+        // if (d.size) -- d.size > 0 when d is a group node.
+        .attr("class", function (d) {
+          return "node" + (d.size ? "" : " leaf");
+        })
+        .attr("r", function (d) {
+          return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
+        })
+        // .style("fill", function (d) { return fill(d.group); })
+        .on("click", function (d) {
+          if (typeof d.group == "undefined") return;
+          if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
+          init();
+        })
+        .attr("display", function (d) {
+          if (d.equivalent == 1 && !$(this).hasClass("leaf"))
+            return "block";
+          else
+            return "none";
+        })
       set = node.filter(function (d) {
         return d.intersect == 1;
       })
-      
+
       set_g = set.append("g")
         .attr("class", "embedded")
         .attr("transform", "translate(-5,0)")
@@ -573,7 +591,7 @@
         edgepaths.attr('d', function (d) {
           return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
         });
-        
+
         link.attr("x1", function (d) { return d.source.x; })
           .attr("y1", function (d) { return d.source.y; })
           .attr("x2", function (d) { return d.target.x; })
@@ -582,7 +600,7 @@
             var dx = d.target.x - d.source.x,
               dy = d.target.y - d.source.y,
               dr = 0;
-              if(d.subclass==1) dr= Math.sqrt(dx * dx + dy * dy);
+            if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
             return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
           })
           .attr('display', function (d) {
@@ -604,7 +622,6 @@
 
 
     function expandLink() {
-
       d3.select("#expandDiv svg").remove();
       var svg_ = d3.select("#expandDiv").append("svg")
         .attr("width", 300)
@@ -656,20 +673,28 @@
         })
       // .on("drag", dragmove);
 
-      var rect = svg_.append("rect")
+      var rect = svg_.append("ellipse")
+        .attr("cx", 50)
+        .attr("cy", 120)
+        .attr("rx", 25)
+        .attr("ry", 100)
         .attr("class", "groupA")
-        .attr("x", 0).attr("y", 0)
-        .attr("width", 50).attr("height", 150)
+        // .attr("x", 0).attr("y", 0)
+        // .attr("width", 50).attr("height", 150)
         .style("fill", "transparent")
         .style("stroke", "#333")
         .style("stroke-width", 1)
         // .call(drag)
         .attr("class", "first");
 
-      var rect2 = svg_.append("rect")
+      var rect2 = svg_.append("ellipse")
+        .attr("cx", 250)
+        .attr("cy", 120)
+        .attr("rx", 25)
+        .attr("ry", 100)
         .attr("class", "groupA")
-        .attr("x", 250).attr("y", 0)
-        .attr("width", 50).attr("height", 150)
+        // .attr("x", 250).attr("y", 0)
+        // .attr("width", 50).attr("height", 150)
         .style("fill", "transparent")
         .style("stroke", "#333")
         .style("stroke-width", 1)
