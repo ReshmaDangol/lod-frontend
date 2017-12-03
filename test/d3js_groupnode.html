@@ -31,7 +31,7 @@
 
     .link {
       stroke: #999;
-      stroke-width: 2;
+      stroke-width: 1;
       fill-opacity: 0;
       stroke-opacity: 1;
       stroke-dasharray: 8;
@@ -41,7 +41,7 @@
 
     .hoveraction {
       cursor: pointer;
-      stroke-dasharray: 0;
+      stroke-dasharray: 0;stroke-width: 2;
     }
 
     .hoveraction:hover {
@@ -149,7 +149,7 @@
     var width = $("body").width(),     // svg width
       height = 600,     // svg height
       dr = 10,      // default point radius
-      off = 15,    // cluster hull offset
+      off = 40,    // cluster hull offset
       expand = {}, // expanded clusters
       data, net, force, hullg, hull, linkg, link, nodeg, node;
 
@@ -353,7 +353,7 @@
           // nodes of another group or other group node or between two group nodes.
           //
           // The latter was done to keep the single-link groups ('blue', rose, ...) close.   
-          return 130 +
+          return 180 +
             Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
               (n2.size || (n1.group != n2.group ? n2.group_data.size : 0))),
               -30 +
