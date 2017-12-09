@@ -192,7 +192,7 @@
 
 
   var width = $("#graphContainer").width(),     // svg width
-    height = 600,     // svg height
+    height = $(window).height() - 100,     // svg height
     dr = 10,      // default point radius
     off = 15,    // cluster hull offset
     expand = {}, // expanded clusters
@@ -229,11 +229,13 @@
       visibility = []; // output links
 
     // process previous nodes for reuse or centroid calculation
+
+    //need to figureout what this does
     if (prev) {
       prev.nodes.forEach(function (n) {
         var i = index(n), o;
         if (n.size > 0) {
-          gn[i] = n;
+          // gn[i] = n;
           n.size = 0;
         } else {
           o = gc[i] || (gc[i] = { x: 0, y: 0, count: 0 });
@@ -692,29 +694,29 @@
         .attr("x2", function (d) { return d.target.x; })
         .attr("y2", function (d) { return d.target.y; })
         .attr("d", function (d) {
-            var dx = d.target.x - d.source.x,
-              dy = d.target.y - d.source.y,
-              dr = 0;
-            if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
-            return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-          })
-          .attr('display', function (d) {
-            var x1 = $(this).attr("x1")
-            var x2 = $(this).attr("x2")
-            var y1 = $(this).attr("y1")
-            var y2 = $(this).attr("y2")
-            if (x1 == x2 && y1 == y2)
-              return 'none';
-            else
-              return 'block';
+          var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = 0;
+          if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
+          return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+        })
+        .attr('display', function (d) {
+          var x1 = $(this).attr("x1")
+          var x2 = $(this).attr("x2")
+          var y1 = $(this).attr("y1")
+          var y2 = $(this).attr("y2")
+          if (x1 == x2 && y1 == y2)
+            return 'none';
+          else
+            return 'block';
 
-          })
+        })
 
 
       node.attr('transform', function nodeTransform(d) { return "translate(" + d.x + "," + d.y + ")"; })
     });
   }
-  function expandLink() {}
+  function expandLink() { }
 </script>
 <script src="js/myscript.js"></script>
 
