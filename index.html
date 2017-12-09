@@ -170,7 +170,8 @@
   });
 
   var userSelection = []
-  var apiurl = "http://localhost:5000/";
+  var pathname = window.location.hostname; 
+  var apiurl = "http://"+ pathname +":5000/";
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
