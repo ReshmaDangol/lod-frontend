@@ -15,6 +15,10 @@
 
   <!-- <script src="../static/js/jsonQ.min.js"></script> -->
   <style type="text/css">
+  .selectedNode
+  {
+    stroke: red !important;
+  }
     svg {
       border: 1px solid #ccc;
     }
@@ -123,7 +127,7 @@
     fill: #acf;
   }
 
-  .special {
+  .intersectionNode {
     stroke-dasharray: 8;
     fill: #fff !important;
   }
@@ -145,6 +149,9 @@
 
   ellipse{
     fill: #fff
+  }
+  .embedded{
+    pointer-events: none
   }
   </style>
 </head>
@@ -168,10 +175,12 @@
   $(function () {
     $("#expandDiv").draggable();
   });
-
+  var toggle = 0;
+  //Create an array logging what is connected to what
+  var linkedByIndex = {};
   var userSelection = []
-  var pathname = window.location.hostname; 
-  var apiurl = "http://"+ pathname +":5000/";
+  var pathname = window.location.hostname;
+  var apiurl = "http://" + pathname + ":5000/";
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
@@ -187,6 +196,7 @@
   function addNode(node) {
     if ($.inArray(node, userSelection) == -1) {
       userSelection.push(node);
+      // userSelection = ["http://www.w3.org/ns/prov#Activity", "http://www.w3.org/ns/prov#Modify", "http://www.w3.org/2008/05/skos-xl#Label", "http://purl.org/ontology/bibo/DocumentPart", "http://purl.org/ontology/bibo/Document", "http://vocab.getty.edu/ontology#ScopeNote", "http://www.w3.org/ns/prov#Create", "http://vocab.getty.edu/ontology#Subject", "http://www.w3.org/2004/02/skos/core#Concept", "http://vocab.getty.edu/ontology#Concept", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement", "http://www.w3.org/ns/prov#Publish", "http://www.w3.org/1999/02/22-rdf-syntax-ns#List", "http://vocab.getty.edu/ontology#ObsoleteSubject", "http://purl.org/iso25964/skos-thes#ThesaurusArray", "http://www.w3.org/2004/02/skos/core#Collection", "http://vocab.getty.edu/ontology#GuideTerm", "http://www.w3.org/2004/02/skos/core#OrderedCollection", "http://xmlns.com/foaf/0.1/Agent", "http://vocab.getty.edu/ontology#Hierarchy"]
       loadGraph(userSelection);
     }
   }
@@ -232,20 +242,20 @@
     // process previous nodes for reuse or centroid calculation
 
     //need to figureout what this does
-    if (prev) {
-      prev.nodes.forEach(function (n) {
-        var i = index(n), o;
-        if (n.size > 0) {
-          // gn[i] = n;
-          n.size = 0;
-        } else {
-          o = gc[i] || (gc[i] = { x: 0, y: 0, count: 0 });
-          o.x += n.x;
-          o.y += n.y;
-          o.count += 1;
-        }
-      });
-    }
+    // if (prev) {
+    //   prev.nodes.forEach(function (n) {
+    //     var i = index(n), o;
+    //     if (n.size > 0) {
+    //       gn[i] = n;
+    //       n.size = 0;
+    //     } else {
+    //       o = gc[i] || (gc[i] = { x: 0, y: 0, count: 0 });
+    //       o.x += n.x;
+    //       o.y += n.y;
+    //       o.count += 1;
+    //     }
+    //   });
+    // }
 
     // determine nodes
     for (var k = 0; k < data.nodes.length; ++k) {
@@ -339,11 +349,6 @@
 
   var vis;
 
-  // var cursor = vis.append("circle")
-  //   .attr("r", 30)
-  //   .attr("fill", "lightsteelblue")
-  //   .attr("transform", "translate(-100,-100)")
-  //   .attr("class", "cursor");
 
   function mousemove() {
     // cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
@@ -351,10 +356,12 @@
 
 
   function loadGraph(userSelection) {
+    
     $("#graphContainer>svg").remove();
     vis = body.append("svg")
       .attr("width", width)
-      .attr("height", height).on("mousemove", mousemove);
+      .attr("height", height)
+    // .on("mousemove", mousemove);
 
 
     $.ajax({
@@ -362,8 +369,6 @@
       url: apiurl + "class",
       data: { 'class': JSON.stringify(userSelection) }
     }).done(function (json) {
-      // // d3.json("miserables.json", function (json) {
-      // console.log(json)
       data = json;
 
       //this draws the line
@@ -385,50 +390,16 @@
         .attr("opacity", 1);
 
     });
-
     var svg = d3.select("svg");
-
-    // svg.append('defs').append('marker')
-    //   .attr({
-    //     'id': 'arrowhead',
-    //     'viewBox': '-0 -5 10 10',
-    //     'refX': 23,
-    //     'refY': 0,
-    //     'orient': 'auto',
-    //     'markerWidth': 13,
-    //     'markerHeight': 13,
-    //     'xoverflow': 'visible'
-    //   })
-    //   .append('svg:path')
-    //   .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-    //   .attr('fill', '#999')
-    //   .style('stroke', 'none');
-
-
-    // svg.select('defs').append('marker')
-    //   .attr({
-    //     'id': 'arrowhead-2',
-    //     'viewBox': '-0 -5 10 10',
-    //     'refX': 13,
-    //     'refY': 0,
-    //     'orient': 'auto',
-    //     'markerWidth': 13,
-    //     'markerHeight': 13,
-    //     'xoverflow': 'visible'
-    //   })
-    //   .append('svg:path')
-    //   .attr('d', 'M0,0L10,-5L10,5Z')
-    //   .attr('fill', '#000')
-    //   .style('stroke', 'none');
-
   }
-  // loadGraph()
 
   function init() {
     if (force) force.stop();
 
     net = network(data, net, getGroup, expand);
-    // console.log(net.nodes)
+    // console.log(net.linsks)
+
+
 
     force = d3.layout.force()
       .nodes(net.nodes)
@@ -446,7 +417,7 @@
         //
         // The latter was done to keep the single-link groups ('blue', rose, ...) close.   
         // console.log(n1)
-        var d = 280 +
+        var d = 250 +
           Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
             (n2.size || (n1.group != n2.group ? n2.group_data.size : 0))),
             -30 +
@@ -461,10 +432,9 @@
         return 1;
       })
       .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
-      .charge(-600)    // ... charge is important to turn single-linked groups to the outside
+      .charge(-500)    // ... charge is important to turn single-linked groups to the outside
       .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
       .start();
-
 
     $("defs").remove();
     d3.select("svg").append("defs").selectAll(".marker")
@@ -513,7 +483,6 @@
         return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width               
       })
       .attr("refY", function (d) {
-        // console.log(d.subclass, d.target.name, d.source.name, d.linkid)
         if (d.subclass == 1)
           return -4;
         // else return -2.5;
@@ -532,8 +501,6 @@
       .attr("d", drawCluster)
       .style("fill", function (d) { return fill(d.group); })
       .on("click", function (d) {
-        console.log("--hull click")
-        // console.log("hull click", d, arguments, this, expand[d.group]);
         expand[d.group] = false; init();
       });
 
@@ -564,20 +531,24 @@
       expandLink();
     });
 
-    // link.on("mousemove", function (d) {
-    //   console.log(d)
-    // });
-
     node = nodeg.selectAll("g").data(net.nodes, nodeid);
     node.exit().remove();
-    var newnode = node.enter().append("g")
+    var newnode = node.enter().append("g").attr("class", "circle_wrapper")
 
+    function equivalentClass() {
+      if ($(this).hasClass("intersectionNode")) return;
+      d = d3.select(this).node().__data__;
+      if (typeof d.group == "undefined") return;
+      if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
+      if (d.size > 1) {
+        init();
+      }
+    }
     newnode.append("circle")
-      // if (d.size) -- d.size > 0 when d is a group node.
       .attr("class", function (d) {
         circle_class = ''
         if (d.intersect == 1)
-          circle_class = 'class special'
+          circle_class = 'class intersectionNode'
         return circle_class + " node" + (d.size ? "" : " leaf");
       })
       .attr("id", function (d) {
@@ -594,15 +565,11 @@
 
       })
       // .style("fill", function (d) { return fill(d.group); })
-      .on("click", function (d) {
-        if (typeof d.group == "undefined") return;
-        if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
-        init();
-      })
+      .on("dblclick", equivalentClass)
+      .on('click', connectedNodes);
 
 
     newnode.append("circle")
-      // if (d.size) -- d.size > 0 when d is a group node.
       .attr("class", function (d) {
         return "node" + (d.size ? "" : " leaf");
       })
@@ -610,17 +577,15 @@
         return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
       })
       // .style("fill", function (d) { return fill(d.group); })
-      .on("click", function (d) {
-        if (typeof d.group == "undefined") return;
-        if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
-        init();
-      })
+      .on("dblclick", equivalentClass)
       .attr("display", function (d) {
         if (d.equivalent == 1 && !$(this).hasClass("leaf"))
           return "block";
         else
           return "none";
-      })
+      }).on('click', connectedNodes)
+
+
     set = node.filter(function (d) {
       return d.intersect == 1;
     })
@@ -646,26 +611,11 @@
       .attr("class", "nofill set_path")
       .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
 
-    // newnode.append("circle")
-    //   // if (d.size) -- d.size > 0 when d is a group node.
-    //   .attr("class", function (d) {
-    //     return "node" + (d.size ? "" : " leaf");
-    //   })
-    //   .attr("r", function (d) {
-    //     return (d.size ? d.size + dr : dr + 1) * 2; //size of circles
-    //   })
-    //   // .style("fill", function (d) { return fill(d.group); })
-    //   .on("click", function (d) {
-    //     if (typeof d.group == "undefined") return;
-    //     if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group]
-    //     // expand[d.group] = !expand[d.group];
-    //     init();
-    //   })
-
     newnode.append("text").attr("class", "node_label")
       .text(function (d) {
         return d.name
-      });
+      }).attr("pointer-events", "none");
+
 
     node.call(force.drag);
     var edgepaths = nodeg.selectAll(".edgepath")
@@ -679,6 +629,7 @@
         'id': function (d, i) { return 'edgepath' + i }
       })
       .style("pointer-events", "none");
+
 
     force.on("tick", function () {
       if (!hull.empty()) {
@@ -710,13 +661,105 @@
             return 'none';
           else
             return 'block';
-
         })
 
 
-      node.attr('transform', function nodeTransform(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      r = 37
+      node.attr('transform', function nodeTransform(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+      })
+        .attr("cx", function (d) {
+          // console.log("d.x", Math.max(r, Math.min(width - r, d.x)))
+          return d.x = Math.max(r, Math.min(width - r, d.x));
+        })
+        .attr("cy", function (d) { return d.y = Math.max(r, Math.min(height - r, d.y)); });
+
+      // node.each(collide(0.5))
     });
+
+    linkedByIndex = {};
+    for (i = 0; i < net.links.length; i++) {
+      var a = net.links[i].source.index
+      var b = net.links[i].target.index
+      linkedByIndex[a + "," + b] = 1;
+    };
+
+    //To included the clicked node for opacity1
+    for (i = 0; i < net.nodes.length; i++) {
+      linkedByIndex[i + "," + i] = 1;
+    };
   }
+
+
+  //This function looks up whether a pair are neighbours
+  function neighboring(a, b) {
+    return linkedByIndex[a.index + "," + b.index];
+  }
+  function connectedNodes() {
+    var check = $(this).hasClass("selectedNode");
+    if (!check) {
+      $(".selectedNode").removeClass("selectedNode")
+      node.style("opacity", 1);
+      link.style("opacity", 1);
+      toggle = 0;
+    }
+
+    if (toggle == 0) {
+      //Reduce the opacity of all but the neighbouring nodes
+      $(this).addClass("selectedNode")
+      d = d3.select(this).node().__data__;
+      console.log("___________")
+      // console.log(linkedByIndex)
+      node.style("opacity", function (o) {
+        // console.log(neighboring(d, o),neighboring(o, d))
+        var return_ = neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+        if(return_ == 1)console.log(d.name, o.name)
+        return return_;
+      });
+
+      link.style("opacity", function (o) {
+        return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
+      });
+      //Reduce the op
+      toggle = 1;
+    } else {
+      //Put them back to opacity=1
+      $(".selectedNode").removeClass("selectedNode")
+      node.style("opacity", 1);
+      link.style("opacity", 1);
+      toggle = 0;
+    }
+  }
+
+
+  var padding = 1, // separation between circles
+    radius = 40;
+  function collide(alpha) {
+    var quadtree = d3.geom.quadtree(net.nodes);
+    return function (d) {
+      var rb = 2 * radius + padding,
+        nx1 = d.x - rb,
+        nx2 = d.x + rb,
+        ny1 = d.y - rb,
+        ny2 = d.y + rb;
+      quadtree.visit(function (quad, x1, y1, x2, y2) {
+        if (quad.point && (quad.point !== d)) {
+          var x = d.x - quad.point.x,
+            y = d.y - quad.point.y,
+            l = Math.sqrt(x * x + y * y);
+          if (l < rb) {
+            l = (l - rb) / l * alpha;
+            d.x -= x *= l;
+            d.y -= y *= l;
+            quad.point.x += x;
+            quad.point.y += y;
+          }
+        }
+        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+      });
+    };
+  }
+
   function expandLink() { }
 </script>
 <script src="js/myscript.js"></script>
