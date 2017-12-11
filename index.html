@@ -15,9 +15,26 @@
 
   <!-- <script src="../static/js/jsonQ.min.js"></script> -->
   <style type="text/css">
+  .nodeCount
+  {
+    padding-left: 10px;
+    color: maroon; 
+    font-size: 9px;
+  }
+  .nodeName{
+    color: maroon; 
+  }
+  .nodeURI
+  {
+    font-size: 9px;
+  }
   .selectedNode
   {
     stroke: red !important;
+  }
+  .addedNode
+  {
+    background: yellow
   }
     svg {
       border: 1px solid #ccc;
@@ -184,21 +201,42 @@
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
+
     expand = expand || {};
     $.get(apiurl + "classlist", function (data) {
       json = jQuery.parseJSON(JSON.stringify(data));
       $(data).each(function () {
-        $("#node_list").append("<div onclick='addNode(\"" + this.class + "\")'>" + this.class + "</div>");
+        $("#node_list").append("<div class='nodeList' data-uri='" + this.class + "'><span class='nodeURI'> " + this.class.split(this.name)[0] + "</span>" +
+          "<span class='nodeName'>" + this.name + "</span>" +
+          "<span class='nodeCount'>" + new Intl.NumberFormat().format(this.count) + "</span></div>");
       });
     });
+
+    $("#node_list").on("click", ".nodeList", function () {
+      var node = $(this).attr("data-uri");
+      if ($.inArray(node, userSelection) == -1) {
+        addNode(node);
+      }
+      else
+        removeNode(node);
+
+      $(this).toggleClass("addedNode");
+      loadGraph(userSelection);
+    })
+
   });
 
   function addNode(node) {
     if ($.inArray(node, userSelection) == -1) {
       userSelection.push(node);
       // userSelection = ["http://www.w3.org/ns/prov#Activity", "http://www.w3.org/ns/prov#Modify", "http://www.w3.org/2008/05/skos-xl#Label", "http://purl.org/ontology/bibo/DocumentPart", "http://purl.org/ontology/bibo/Document", "http://vocab.getty.edu/ontology#ScopeNote", "http://www.w3.org/ns/prov#Create", "http://vocab.getty.edu/ontology#Subject", "http://www.w3.org/2004/02/skos/core#Concept", "http://vocab.getty.edu/ontology#Concept", "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement", "http://www.w3.org/ns/prov#Publish", "http://www.w3.org/1999/02/22-rdf-syntax-ns#List", "http://vocab.getty.edu/ontology#ObsoleteSubject", "http://purl.org/iso25964/skos-thes#ThesaurusArray", "http://www.w3.org/2004/02/skos/core#Collection", "http://vocab.getty.edu/ontology#GuideTerm", "http://www.w3.org/2004/02/skos/core#OrderedCollection", "http://xmlns.com/foaf/0.1/Agent", "http://vocab.getty.edu/ontology#Hierarchy"]
-      loadGraph(userSelection);
+      
     }
+  }
+  function removeNode(node) {
+    userSelection = jQuery.grep(userSelection, function (value) {
+      return value != node;
+    });
   }
 
 
@@ -356,7 +394,7 @@
 
 
   function loadGraph(userSelection) {
-    
+
     $("#graphContainer>svg").remove();
     vis = body.append("svg")
       .attr("width", width)
@@ -443,7 +481,7 @@
       .append("marker")
       .attr("class", "marker")
       .attr({
-        'viewBox': '-0 -5 10 10',
+        'viewBox': '-4 -5 10 10',
         'refY': 0,
         'orient': 'auto',
         'markerWidth': 13,
@@ -468,7 +506,7 @@
       .enter().append('marker')
       .attr("class", "marker")
       .attr({
-        'viewBox': '-0 -5 10 10',
+        'viewBox': '3 -5 10 10',
         // 'refY': -3,
         'orient': 'auto',
         'markerWidth': 13,
@@ -614,7 +652,7 @@
     newnode.append("text").attr("class", "node_label")
       .text(function (d) {
         return d.name
-      }).attr("pointer-events", "none");
+      }).attr("pointer-events", "none").attr("text-anchor", "middle")
 
 
     node.call(force.drag);
@@ -663,18 +701,15 @@
             return 'block';
         })
 
-
-      r = 37
       node.attr('transform', function nodeTransform(d) {
         return "translate(" + d.x + "," + d.y + ")";
       })
-        .attr("cx", function (d) {
-          // console.log("d.x", Math.max(r, Math.min(width - r, d.x)))
-          return d.x = Math.max(r, Math.min(width - r, d.x));
-        })
-        .attr("cy", function (d) { return d.y = Math.max(r, Math.min(height - r, d.y)); });
+      // .attr("cx", function (d) {
+      //     return d.x = Math.max(r, Math.min(width - r, d.x));
+      //   })
+      //   .attr("cy", function (d) { return d.y = Math.max(r, Math.min(height - r, d.y)); });
 
-      // node.each(collide(0.5))
+      node.each(collide(0.5))
     });
 
     linkedByIndex = {};
@@ -682,12 +717,12 @@
       var a = net.links[i].source.index
       var b = net.links[i].target.index
       linkedByIndex[a + "," + b] = 1;
-    };
+    }
 
     //To included the clicked node for opacity1
     for (i = 0; i < net.nodes.length; i++) {
       linkedByIndex[i + "," + i] = 1;
-    };
+    }
   }
 
 
@@ -703,7 +738,6 @@
       link.style("opacity", 1);
       toggle = 0;
     }
-
     if (toggle == 0) {
       //Reduce the opacity of all but the neighbouring nodes
       $(this).addClass("selectedNode")
@@ -713,7 +747,7 @@
       node.style("opacity", function (o) {
         // console.log(neighboring(d, o),neighboring(o, d))
         var return_ = neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-        if(return_ == 1)console.log(d.name, o.name)
+        if (return_ == 1) console.log(d.name, o.name)
         return return_;
       });
 
@@ -724,7 +758,7 @@
       toggle = 1;
     } else {
       //Put them back to opacity=1
-      $(".selectedNode").removeClass("selectedNode")
+      $(".selectedNode").removeClass("selectedNode");
       node.style("opacity", 1);
       link.style("opacity", 1);
       toggle = 0;
@@ -733,7 +767,7 @@
 
 
   var padding = 1, // separation between circles
-    radius = 40;
+    radius = 50;
   function collide(alpha) {
     var quadtree = d3.geom.quadtree(net.nodes);
     return function (d) {
