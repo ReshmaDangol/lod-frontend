@@ -290,12 +290,14 @@
   var userSelection = []
   var pathname = window.location.hostname;
   var apiurl = "http://" + pathname + ":5000/";
+  var querymode = false;
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
     $("#querymode").on("change",function(){
       $(".fixed").removeClass("fixed");
-      $(this).is(":checked")
+      if($(this).is(":checked")) querymode = true;
+      else querymode = false
     });
 
     expand = expand || {};
@@ -395,7 +397,8 @@
     for (var k = 0; k < data.nodes.length; ++k) {
       var n = data.nodes[k],
         i = index(n),
-        l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass });
+        l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, 
+        equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclassz });
 
       if (expand[i]) {
         // the node should be directly visible
@@ -857,19 +860,19 @@
 
   }
   function dragstart(d) {
-    if ($("#querymode").is(":checked"))
+    if (querymode)
     d3.select(this).classed("fixed", d.fixed = true);
     // else
     // d3.select(this).classed("fixed", d.fixed = false);
   }
   function dragstart1(d, i) {
     console.log($("#querymode").is(":checked"));
-    if ($("#querymode").is(":checked"))
+    if (querymode)
       force.stop() // stops the force auto positioning before you start dragging
     else force.drag
   }
   function dragmove(d, i) {
-    if ($("#querymode").is(":checked")) {
+    if (querymode) {
       d.px += d3.event.dx;
       d.py += d3.event.dy;
       d.x += d3.event.dx;
@@ -877,13 +880,13 @@
     }
   }
   function dragend(d, i) {
-    if ($("#querymode").is(":checked")) {
+    if (querymode) {
       d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
       force.resume();
     }
   }
   function releasenode(d) {
-    if ($("#querymode").is(":checked")) {
+    if (querymode) {
       d.fixed = false; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
       //force.resume();
     }
@@ -895,6 +898,13 @@
     return linkedByIndex[a.index + "," + b.index];
   }
   function connectedNodes() {
+      if(querymode){
+        d = d3.select(this).node().__data__;
+         query(d.class); 
+         return;
+      }
+
+
     var check = $(this).hasClass("selectedNode");
     if (!check) {
       $(".selectedNode").removeClass("selectedNode")
@@ -1143,8 +1153,9 @@
 
 var query_node_subject, query_node_object, query_node_property;
 
-function query()
+function query(s)
 {
+  query_node_subject = s;
   $.ajax({
       type: "POST",
       url: apiurl + "query",
