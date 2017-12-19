@@ -1161,7 +1161,7 @@ function query(s)
       url: apiurl + "query",
       data: { 's' : query_node_subject,
               'p': query_node_property, 
-              'o' : query_node_object
+              't' : query_node_object
             }
     }).done(function (json) {
       data = json;
