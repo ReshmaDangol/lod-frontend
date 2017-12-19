@@ -1189,17 +1189,19 @@
     query_node_subject = s;
 
     $('#resultTable').DataTable({
-      "ajax": apiurl + "query",
-      "type": "POST",
-      "data": {
-        's': query_node_subject,
-        'p': query_node_property,
-        't': query_node_object
-      },
+      "ajax": {
+          type: "POST",
+          url: apiurl + "query",
+          data: {
+            's': query_node_subject,
+            'p': query_node_property,
+            't': query_node_object
+          }
+        },
       "columns": [
-        { "data": s.value },
-        { "data": p.value },
-        { "data": o.value }
+        { "data": "s.value" },
+        { "data": "p.value" },
+        { "data": "o.value" }
       ]
     });
 
