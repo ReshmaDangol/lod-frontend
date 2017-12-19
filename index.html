@@ -398,7 +398,7 @@
       var n = data.nodes[k],
         i = index(n),
         l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, 
-        equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclassz });
+        equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass, class:n.class });
 
       if (expand[i]) {
         // the node should be directly visible
@@ -1165,6 +1165,7 @@ function query(s)
             }
     }).done(function (json) {
       data = json;
+      console.log(data)
     });
 }
 
