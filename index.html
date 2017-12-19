@@ -7,14 +7,82 @@
 
   <script src="js/jquery-3.2.1.min.js"></script>
   <script src="js/jquery-ui.js"></script>
-  <script src="js/d3.v2.js"></script>
+  <!-- <script src="js/d3.v2.js"></script> -->
+  <script src="https://d3js.org/d3.v3.min.js"></script>
   <abbr src="js/bootstrap.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="ss/jquery-ui.css"></link>
   <link rel="css/customize.css"></link>
 
   <!-- <script src="../static/js/jsonQ.min.js"></script> -->
   <style type="text/css">
+  .class_name_right,.class_name_left
+  {
+    position: absolute;
+    top:45%;
+    font-size: 14px;
+  }
+  .class_name_right
+  {
+    right: 0px
+  }
+  .class_name_left
+  {
+    left: -40px
+  }
+  .rotate{
+    -ms-transform: rotate(-90deg) translate(0, -100%); /* IE 9 */
+    -webkit-transform: rotate(-90deg) translate(0, -100%); /* Safari */
+    transform: rotate(-90deg) translate(0, -100%); /* Standard syntax */
+    transform-origin: 100% 10px;
+  }
+  .p_name{
+    padding-left: 25px;
+    text-align:center;
+  }
+  .basicDimen {
+  width: 0px;
+  height: 0px;
+  margin-top:-6px;
+}
+.arrowline{
+  height: 1px;
+  background: #AAAACC;
+  margin:1px 2px;
+}
+.leftArrow {
+  border-right: 6px solid #AAAACC;
+  border-bottom: 5px solid transparent;
+  border-top: 5px solid transparent;
+  float: left;
+}
+.rightArrow {
+  border-left: 6px solid #AAAACC;
+  border-bottom: 5px solid transparent;
+  border-top: 5px solid transparent;
+  float:right;
+}
+.inverseof_title
+{
+  text-align:center;
+  color:#000;
+}
+  #expandDiv{
+    width:30%;
+    max-height: 90%;
+    overflow-y: auto;
+    padding: 10px 60px;
+    min-height: 200px;
+  }
+  .inverselist{
+    padding-left: 15px;
+    margin-bottom:5px;
+    display: none;
+  }
+  .propertylist
+  {
+    padding: 5px;
+  }
   .pline{
    stroke: #333; 
   }
@@ -56,6 +124,7 @@
 
     body {
       font: 10px sans-serif;
+      color:#555
     }
 
     circle.node {
@@ -179,11 +248,21 @@
   .embedded{
     pointer-events: none
   }
+  #querymode
+  {
+    cursor: pointer
+  }
   </style>
 </head>
 
 <body>
   <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <label id="querymode_lbl" for="querymode">Query mode</label>
+        <input type="checkbox" id="querymode">
+      </div>
+    </div>
     <div class="row">
       <div class="col-lg-3 col-md-4">
         <div>Classes</div>
@@ -196,9 +275,12 @@
       </div>
     </div>
   </div>
-  <div id="expandDiv" class="ui-widget-content"></div>
+  <div id="expandDiv" class="container-fluid ui-widget-content"></div>
 </body>
 <script type="text/javascript">
+
+
+
   $(function () {
     $("#expandDiv").draggable();
   });
@@ -211,6 +293,10 @@
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
+    $("#querymode").on("change",function(){
+      $(".fixed").removeClass("fixed");
+      $(this).is(":checked")
+    });
 
     expand = expand || {};
     $.get(apiurl + "classlist", function (data) {
@@ -484,6 +570,7 @@
       .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
       .start();
 
+
     $("defs").remove();
     d3.select("svg").append("defs").selectAll(".marker")
       .data(force.links())
@@ -671,7 +758,15 @@
       }).attr("pointer-events", "none").attr("text-anchor", "middle")
 
 
-    node.call(force.drag);
+    // var node_drag = force.drag()
+    //   .on("dragstart", dragstart)
+      // .on("drag", dragmove)
+      // .on("dragend", dragend);
+
+    // node.call(force.drag);
+   
+
+
     var edgepaths = nodeg.selectAll(".edgepath")
       .data(net.links)
       .enter()
@@ -750,6 +845,47 @@
     //To included the clicked node for opacity1
     for (i = 0; i < net.nodes.length; i++) {
       linkedByIndex[i + "," + i] = 1;
+    }
+
+    console.log(force.drag())
+    var node_drag = force.drag()
+    .on("dragstart", dragstart);
+
+    // var node_drag = force.drag()
+    //   .on("dragstart", dragstart)
+    node.call(node_drag);
+
+  }
+  function dragstart(d) {
+    if ($("#querymode").is(":checked"))
+    d3.select(this).classed("fixed", d.fixed = true);
+    // else
+    // d3.select(this).classed("fixed", d.fixed = false);
+  }
+  function dragstart1(d, i) {
+    console.log($("#querymode").is(":checked"));
+    if ($("#querymode").is(":checked"))
+      force.stop() // stops the force auto positioning before you start dragging
+    else force.drag
+  }
+  function dragmove(d, i) {
+    if ($("#querymode").is(":checked")) {
+      d.px += d3.event.dx;
+      d.py += d3.event.dy;
+      d.x += d3.event.dx;
+      d.y += d3.event.dy;
+    }
+  }
+  function dragend(d, i) {
+    if ($("#querymode").is(":checked")) {
+      d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+      force.resume();
+    }
+  }
+  function releasenode(d) {
+    if ($("#querymode").is(":checked")) {
+      d.fixed = false; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+      //force.resume();
     }
   }
 
@@ -834,14 +970,66 @@
     $.ajax({
       type: "POST",
       url: apiurl + "property",
-      data: { 's': source, 't': target, 'b': bidirection ,'limit':5}
+      data: { 's': source, 't': target, 'b': bidirection, 'limit': 5 }
     }).done(function (json) {
       p_data = json;
-      drawPropertyInfo(source,target);
+      // drawPropertyInfo(source,target);
+      cssPropertyInfo(source, target);
     });
   }
+  function getName(uri) {
+    var parts = uri.split("/");
+    var lastPart = parts[parts.length - 1];
+    var checkHash = lastPart.split("#")
+    console.log(checkHash[0])
+    if (checkHash.length > 0)
+      return checkHash[1]
+    else return checkHash[0]
 
-  function drawPropertyInfo(left,right) {
+  }
+  function cssPropertyInfo(left, right) {
+    $("#expandDiv *").remove();
+    $("#expandDiv").append("<div><label for='toggle_inverseof'>InverseOf Property</label><input id='toggle_inverseof' type='checkbox' name='vehicle' value='1'></div>");
+    $("#expandDiv").append("<div class='rotate class_name_left'>" + getName(left) + "</div>" +
+      "<div class='rotate class_name_right'>" + getName(right) + "</div>"
+    );
+    $("#expandDiv").on("click", "#toggle_inverseof", function () {
+      if (this.checked) {
+        $(".inverselist").show(100);
+      }
+      else
+        $(".inverselist").hide(100);
+    });
+    jQuery.each(p_data, function (i, d) {
+
+      $("#expandDiv").append("<div class='row propertylist'>" +
+        "<div class='p_name col-lg-12'>" + getName(d["p"]) + " - " + d["count"] + "</div>" +
+        "<div class='col-lg-12 link'><div class='arrowline'></div><article class='basicDimen " +
+        (d["c1"] == left ? "rightArrow" : "leftArrow")
+        + "'></article></div>" +
+        (d["inverse"] == null ? "" : "<div class='container-fluid'><div id='inverselist" + i + "' class='inverselist row'></div>") +
+        "</div>");
+
+      if (typeof d["inverse"] === "undefined") return;
+      temp = d["inverse"].sort(function (a, b) {
+        return (a.count_ < b.count_);
+      });
+
+      if (d["inverse"].length > 0)
+        $("#inverselist" + i).append("<div class='col-lg-12'><div class='inverseof_title'>InverseOf" +
+          "<div class='arrowline'></div><article class='basicDimen " +
+          (d["c1"] == left ? "leftArrow" : "rightArrow")
+          + "'></article></div></div></div>"
+        );
+      $.each(temp, function (j, val) {
+        if (j > 5 || val["count_"] == 0) return;
+        $("#inverselist" + i).append("<div class='col-lg-10'>" + getName(val["p"]) + "</div>" +
+          "<div class='col-lg-2'>" + new Intl.NumberFormat().format(val["count_"]) + "</div>"
+        );
+      });
+    });
+  }
+  function drawPropertyInfo(left, right) {
     d3.select("#expandDiv svg").remove();
     var svg_ = d3.select("#expandDiv").append("svg");
     console.log(p_data)
@@ -884,44 +1072,46 @@
       .attr('fill', '#000')
       .style('stroke', 'none');
 
-    var drag = d3.behavior.drag()
-      .on("dragstart", function () {
-        d3.event.sourceEvent.stopPropagation()
-      })
+    // var drag = d3.behavior.drag()
+    //   .on("dragstart", function () {
+    //     d3.event.sourceEvent.stopPropagation()
+    //   })
     // .on("drag", dragmove);
+
 
     var series = [[{ time: 50, value: 50 }, { time: 250, value: 50 }], [{ time: 50, value: 80 }, { time: 250, value: 80 }]];
     var pline = d3.svg.line()
       .interpolate("linear")
-      .x(function (d,i) { 
+      .x(function (d, i) {
         alert(i)
-        return d.time; })
-      .y(function (d,i) { return d.value; });
+        return d.time;
+      })
+      .y(function (d, i) { return d.value; });
 
     group = svg_.append("g");
     group.selectAll(".pline")
       .data(p_data)
       .enter().append("path")
       .attr("class", "pline")
-      .attr("d", function(d,i){
-          var x1 = 50 ;
-          var x2 = 250;
-          var y = 50 + 30*i;
-          return "M " +x1 +" "+ y +" L "+x2+" "+ y;
+      .attr("d", function (d, i) {
+        var x1 = 50;
+        var x2 = 250;
+        var y = 50 + 30 * i;
+        return "M " + x1 + " " + y + " L " + x2 + " " + y;
       })
       .attr('marker-end', function (d) {
-        if(d.c1 == left) 
-        return 'url(#endarrowhead)';
+        if (d.c1 == left)// || d.inverse!=null) 
+          return 'url(#endarrowhead)';
       })
       .attr('marker-start', function (d) {
-        if(d.c2 == left)
-        return 'url(#arrowhead)';
-        
+        if (d.c2 == left)// || d.inverse!=null)
+          return 'url(#arrowhead)';
+
       })
-      .attr('id', function(d,i){ return "property_"+i;})
+      .attr('id', function (d, i) { return "property_" + i; })
 
 
-      group.selectAll(".edgelabel") .data(p_data)
+    group.selectAll(".edgelabel").data(p_data)
       .enter()
       .append('text')
       .style("pointer-events", "none")
@@ -932,32 +1122,41 @@
         'font-size': 10,
         'fill': '#333'
       })
-      .attr('dy',function(d,i){
-          return 48 + 30*i;
+      .attr('dy', function (d, i) {
+        return 48 + 30 * i;
       })
       .append('textPath')
-      .attr('href', function(d,i){ return "property_"+i;})
+      .attr('href', function (d, i) { return "property_" + i; })
       .style("pointer-events", "none")
-      .text(function(d){
-        if(d.p == d.p1)
-        return getName(d.p) + " " + d.count+" "+getName(d.p2)
-        if(d.p == d.p2)
-        return getName(d.p) + " " + d.count+" "+getName(d.p1)
-        return getName(d.p) + " " + d.count; 
+      .text(function (d) {
+        // if(d.p == d.p1)
+        // return getName(d.p) + " " + d.count+" "+getName(d.p2)
+        // if(d.p == d.p2)
+        // return getName(d.p) + " " + d.count+" "+getName(d.p1)
+        var x = getName(d.p)
+        console.log(x)
+        // alert(x)
+        return x + " " + d.count;
       });
 
   }
 
-  function getName(uri)
-  {
-    var parts = uri.split("/");
-    var lastPart = parts[parts.length-1];
-    var checkHash = lastPart.split("#")
-    if(checkHash.length>0)
-    return checkHash[1]
-    else return checkHash[0]
-    
-  }
+var query_node_subject, query_node_object, query_node_property;
+
+function query()
+{
+  $.ajax({
+      type: "POST",
+      url: apiurl + "query",
+      data: { 'subject' : query_node_subject,
+              'property': query_node_property, 
+              'object' : query_node_object
+            }
+    }).done(function (json) {
+      data = json;
+    });
+}
+
 </script>
 <script src="js/myscript.js"></script>
 
