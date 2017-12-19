@@ -1200,13 +1200,14 @@
       }
     }).done(function (json) {
       console.log(json)
-      $.each(json, function (key, value) {
+      $.each(json, function (key, d) {
         $("#resultTable tbody").append("<tr>" +
-          "<td>" + value.s + "</td>" +
-          "<td>" + value.p + "</td>" +
-          "<td>" + value.o + "</td>" +
+          "<td>" + d.s.value + "</td>" +
+          "<td>" + d.p.value + "</td>" +
+          "<td>" + d.o.value + "</td>" +
           "</tr>")
       });
+      $('#resultTable').DataTable();
     });
   }
 
@@ -1215,9 +1216,9 @@
     // "ordering": false
   });
 
-  $(document).ready(function () {
-    $('#resultTable').DataTable();
-  });
+  // $(document).ready(function () {
+  //   $('#resultTable').DataTable();
+  // });
 
 </script>
 <script src="js/myscript.js"></script>
