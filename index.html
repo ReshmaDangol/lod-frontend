@@ -1159,9 +1159,9 @@ function query(s)
   $.ajax({
       type: "POST",
       url: apiurl + "query",
-      data: { 'subject' : query_node_subject,
-              'property': query_node_property, 
-              'object' : query_node_object
+      data: { 's' : query_node_subject,
+              'p': query_node_property, 
+              'o' : query_node_object
             }
     }).done(function (json) {
       data = json;
