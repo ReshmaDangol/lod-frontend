@@ -9,122 +9,139 @@
   <script src="js/jquery-ui.js"></script>
   <!-- <script src="js/d3.v2.js"></script> -->
   <script src="https://d3js.org/d3.v3.min.js"></script>
-  <abbr src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="ss/jquery-ui.css"></link>
   <link rel="css/customize.css"></link>
+  <link rel="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"></link>
 
   <!-- <script src="../static/js/jsonQ.min.js"></script> -->
   <style type="text/css">
-  .class_name_right,.class_name_left
-  {
-    position: absolute;
-    top:45%;
-    font-size: 14px;
-  }
-  .class_name_right
-  {
-    right: 0px
-  }
-  .class_name_left
-  {
-    left: -40px
-  }
-  .rotate{
-    -ms-transform: rotate(-90deg) translate(0, -100%); /* IE 9 */
-    -webkit-transform: rotate(-90deg) translate(0, -100%); /* Safari */
-    transform: rotate(-90deg) translate(0, -100%); /* Standard syntax */
-    transform-origin: 100% 10px;
-  }
-  .p_name{
-    padding-left: 25px;
-    text-align:center;
-  }
-  .basicDimen {
-  width: 0px;
-  height: 0px;
-  margin-top:-6px;
-}
-.arrowline{
-  height: 1px;
-  background: #AAAACC;
-  margin:1px 2px;
-}
-.leftArrow {
-  border-right: 6px solid #AAAACC;
-  border-bottom: 5px solid transparent;
-  border-top: 5px solid transparent;
-  float: left;
-}
-.rightArrow {
-  border-left: 6px solid #AAAACC;
-  border-bottom: 5px solid transparent;
-  border-top: 5px solid transparent;
-  float:right;
-}
-.inverseof_title
-{
-  text-align:center;
-  color:#000;
-}
-  #expandDiv{
-    width:30%;
-    max-height: 90%;
-    overflow-y: auto;
-    padding: 10px 60px;
-    min-height: 200px;
-  }
-  .inverselist{
-    padding-left: 15px;
-    margin-bottom:5px;
-    display: none;
-  }
-  .propertylist
-  {
-    padding: 5px;
-  }
-  .pline{
-   stroke: #333; 
-  }
-  .thicklink
-  {
-    stroke:transparent;
-    /* stroke: red; */
-    stroke-width: 12;
-    cursor: pointer;
-    fill: transparent;
-  }
-  .thicklink:hover{
-    stroke:rgba(0,0,0,0.5);
-  }
-  .nodeCount
-  {
-    padding-left: 10px;
-    color: maroon; 
-    font-size: 9px;
-  }
-  .nodeName{
-    color: maroon; 
-  }
-  .nodeURI
-  {
-    font-size: 9px;
-  }
-  .selectedNode
-  {
-    stroke: red !important;
-  }
-  .addedNode
-  {
-    background: yellow
-  }
+    .class_name_right,
+    .class_name_left {
+      position: absolute;
+      top: 45%;
+      font-size: 14px;
+    }
+
+    .class_name_right {
+      right: 0px
+    }
+
+    .class_name_left {
+      left: -40px
+    }
+
+    .rotate {
+      -ms-transform: rotate(-90deg) translate(0, -100%);
+      /* IE 9 */
+      -webkit-transform: rotate(-90deg) translate(0, -100%);
+      /* Safari */
+      transform: rotate(-90deg) translate(0, -100%);
+      /* Standard syntax */
+      transform-origin: 100% 10px;
+    }
+
+    .p_name {
+      padding-left: 25px;
+      text-align: center;
+    }
+
+    .basicDimen {
+      width: 0px;
+      height: 0px;
+      margin-top: -6px;
+    }
+
+    .arrowline {
+      height: 1px;
+      background: #AAAACC;
+      margin: 1px 2px;
+    }
+
+    .leftArrow {
+      border-right: 6px solid #AAAACC;
+      border-bottom: 5px solid transparent;
+      border-top: 5px solid transparent;
+      float: left;
+    }
+
+    .rightArrow {
+      border-left: 6px solid #AAAACC;
+      border-bottom: 5px solid transparent;
+      border-top: 5px solid transparent;
+      float: right;
+    }
+
+    .inverseof_title {
+      text-align: center;
+      color: #000;
+    }
+
+    #expandDiv {
+      width: 30%;
+      max-height: 90%;
+      overflow-y: auto;
+      padding: 10px 60px;
+      min-height: 200px;
+    }
+
+    .inverselist {
+      padding-left: 15px;
+      margin-bottom: 5px;
+      display: none;
+    }
+
+    .propertylist {
+      padding: 5px;
+    }
+
+    .pline {
+      stroke: #333;
+    }
+
+    .thicklink {
+      stroke: transparent;
+      /* stroke: red; */
+      stroke-width: 12;
+      cursor: pointer;
+      fill: transparent;
+    }
+
+    .thicklink:hover {
+      stroke: rgba(0, 0, 0, 0.5);
+    }
+
+    .nodeCount {
+      padding-left: 10px;
+      color: maroon;
+      font-size: 9px;
+    }
+
+    .nodeName {
+      color: maroon;
+    }
+
+    .nodeURI {
+      font-size: 9px;
+    }
+
+    .selectedNode {
+      stroke: red !important;
+    }
+
+    .addedNode {
+      background: yellow
+    }
+
     svg {
       border: 1px solid #ccc;
     }
 
     body {
       font: 10px sans-serif;
-      color:#555
+      color: #555
     }
 
     circle.node {
@@ -162,96 +179,98 @@
 
 
     body {
-    font: 10px sans-serif;
-  }
+      font: 10px sans-serif;
+    }
 
-  circle.node {
-    fill: #fff;
-    stroke: #555;
-    min-width: 30px;
-  }
+    circle.node {
+      fill: #fff;
+      stroke: #555;
+      min-width: 30px;
+    }
 
-  circle.leaf {
-    /* stroke: #fff; */
-  }
+    circle.leaf {
+      /* stroke: #fff; */
+    }
 
-  .hull {
-    fill: lightsteelblue;
-    fill-opacity: 0.3;
-  }
+    .hull {
+      fill: lightsteelblue;
+      fill-opacity: 0.3;
+    }
 
-  .link {
-    stroke: #999;
-    stroke-width: 1;
-    fill-opacity: 0;
-    stroke-opacity: 1;
-    stroke-dasharray: 8;
-    /* stroke-opacity: 0.5; */
-    /* pointer-events: none; */
-  }
+    .link {
+      stroke: #999;
+      stroke-width: 1;
+      fill-opacity: 0;
+      stroke-opacity: 1;
+      stroke-dasharray: 8;
+      /* stroke-opacity: 0.5; */
+      /* pointer-events: none; */
+    }
 
-  .solidline {
-    cursor: pointer;
-    stroke-dasharray: 0;stroke-width: 1;
-  }
+    .solidline {
+      cursor: pointer;
+      stroke-dasharray: 0;
+      stroke-width: 1;
+    }
 
-  .node_label {
-    stroke: #333;
-    font: 12px sans-serif;
-    /* pointer-events: none; */
-    stroke: none;
-  }
+    .node_label {
+      stroke: #333;
+      font: 12px sans-serif;
+      /* pointer-events: none; */
+      stroke: none;
+    }
 
-  #expandDiv {
-    position: absolute;
-    z-index: 1;
-    background: rgba(254,254,254,0.7);
-    border-radius: 10px;
-    border: 1px  solid #ccc;
-  }
+    #expandDiv {
+      position: absolute;
+      z-index: 1;
+      background: rgba(254, 254, 254, 0.7);
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
 
-  .class,
-  .set_path,
-  .fineline {
-    stroke: #000;
-  }
+    .class,
+    .set_path,
+    .fineline {
+      stroke: #000;
+    }
 
-  .class,
-  .object,
-  .disjoint {
-    fill: #acf;
-  }
+    .class,
+    .object,
+    .disjoint {
+      fill: #acf;
+    }
 
-  .intersectionNode {
-    stroke-dasharray: 8;
-    fill: #fff !important;
-  }
-
-
-  .symbol {
-    fill: #69c;
-  }
-
-  .nostroke {
-
-    stroke: none;
-  }
+    .intersectionNode {
+      stroke-dasharray: 8;
+      fill: #fff !important;
+    }
 
 
-  .nofill {
-    fill: none;
-  }
+    .symbol {
+      fill: #69c;
+    }
 
-  ellipse{
-    fill: #fff
-  }
-  .embedded{
-    pointer-events: none
-  }
-  #querymode
-  {
-    cursor: pointer
-  }
+    .nostroke {
+
+      stroke: none;
+    }
+
+
+    .nofill {
+      fill: none;
+    }
+
+    ellipse {
+      fill: #fff
+    }
+
+    .embedded {
+      pointer-events: none
+    }
+
+    #querymode {
+      cursor: pointer
+    }
   </style>
 </head>
 
@@ -276,11 +295,25 @@
     </div>
   </div>
   <div id="expandDiv" class="container-fluid ui-widget-content"></div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <td>Subject</td>
+            <td>Predicate</td>
+            <td>Object</td>
+          </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
 </body>
 <script type="text/javascript">
-
-
-
   $(function () {
     $("#expandDiv").draggable();
   });
@@ -294,9 +327,9 @@
   // var apiurl = "http://192.41.170.50:5000/"
   $(document).ready(function () {
 
-    $("#querymode").on("change",function(){
+    $("#querymode").on("change", function () {
       $(".fixed").removeClass("fixed");
-      if($(this).is(":checked")) querymode = true;
+      if ($(this).is(":checked")) querymode = true;
       else querymode = false
     });
 
@@ -397,8 +430,10 @@
     for (var k = 0; k < data.nodes.length; ++k) {
       var n = data.nodes[k],
         i = index(n),
-        l = gm[i] || (gm[i] = gn[i]) || (gm[i] = { group: i, size: 0, nodes: [], name: n.name, 
-        equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass, class:n.class });
+        l = gm[i] || (gm[i] = gn[i]) || (gm[i] = {
+          group: i, size: 0, nodes: [], name: n.name,
+          equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass, class: n.class
+        });
 
       if (expand[i]) {
         // the node should be directly visible
@@ -763,11 +798,11 @@
 
     // var node_drag = force.drag()
     //   .on("dragstart", dragstart)
-      // .on("drag", dragmove)
-      // .on("dragend", dragend);
+    // .on("drag", dragmove)
+    // .on("dragend", dragend);
 
     // node.call(force.drag);
-   
+
 
 
     var edgepaths = nodeg.selectAll(".edgepath")
@@ -852,7 +887,7 @@
 
     console.log(force.drag())
     var node_drag = force.drag()
-    .on("dragstart", dragstart);
+      .on("dragstart", dragstart);
 
     // var node_drag = force.drag()
     //   .on("dragstart", dragstart)
@@ -861,7 +896,7 @@
   }
   function dragstart(d) {
     if (querymode)
-    d3.select(this).classed("fixed", d.fixed = true);
+      d3.select(this).classed("fixed", d.fixed = true);
     // else
     // d3.select(this).classed("fixed", d.fixed = false);
   }
@@ -898,11 +933,11 @@
     return linkedByIndex[a.index + "," + b.index];
   }
   function connectedNodes() {
-      if(querymode){
-        d = d3.select(this).node().__data__;
-         query(d.class); 
-         return;
-      }
+    if (querymode) {
+      d = d3.select(this).node().__data__;
+      query(d.class);
+      return;
+    }
 
 
     var check = $(this).hasClass("selectedNode");
@@ -1151,23 +1186,38 @@
 
   }
 
-var query_node_subject, query_node_object ='' , query_node_property = '';
+  var query_node_subject, query_node_object = '', query_node_property = '';
 
-function query(s)
-{
-  query_node_subject = s;
-  $.ajax({
+  function query(s) {
+    query_node_subject = s;
+    $.ajax({
       type: "POST",
       url: apiurl + "query",
-      data: { 's' : query_node_subject,
-              'p': query_node_property, 
-              't' : query_node_object
-            }
+      data: {
+        's': query_node_subject,
+        'p': query_node_property,
+        't': query_node_object
+      }
     }).done(function (json) {
-      data = json;
-      console.log(data)
+      console.log(json)
+      $.each(json, function (key, value) {
+        $("#resultTable tbody").append("<tr>" +
+          "<td>" + value.s + "</td>" +
+          "<td>" + value.p + "</td>" +
+          "<td>" + value.o + "</td>" +
+          "</tr>")
+      });
     });
-}
+  }
+
+  $.extend(true, $.fn.dataTable.defaults, {
+    "searching": false
+    // "ordering": false
+  });
+
+  $(document).ready(function () {
+    $('#resultTable').DataTable();
+  });
 
 </script>
 <script src="js/myscript.js"></script>
