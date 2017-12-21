@@ -1217,7 +1217,7 @@
     }).done(function (json) {
       console.log(json)
       $("#resultTable tbody").html("");
-      $.each(json, function (key, d) {
+      $.each(json.data, function (key, d) {
         $("#resultTable tbody").append("<tr>" +
           "<td>" + d.s.value + "</td>" +
           "<td>" + d.p.value + "</td>" +
