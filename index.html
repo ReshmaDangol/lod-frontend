@@ -1188,45 +1188,45 @@
   function query(s) {
     query_node_subject = s;
 
-    $('#resultTable').DataTable({
-      "ajax": {
-          type: "POST",
-          url: apiurl + "query",
-          data: {
-            's': query_node_subject,
-            'p': query_node_property,
-            't': query_node_object
-          }
-        },
-      "columns": [
-        { "data": "s.value" },
-        { "data": "p.value" },
-        { "data": "o.value" }
-      ],
-      "destroy": true
+    // $('#resultTable').DataTable({
+    //   "ajax": {
+    //       type: "POST",
+    //       url: apiurl + "query",
+    //       data: {
+    //         's': query_node_subject,
+    //         'p': query_node_property,
+    //         't': query_node_object
+    //       }
+    //     },
+    //   "columns": [
+    //     { "data": "s.value" },
+    //     { "data": "p.value" },
+    //     { "data": "o.value" }
+    //   ],
+    //   "destroy": true
+    // });
+
+    $.ajax({
+      type: "POST",
+      url: apiurl + "query",
+      data: {
+        's': query_node_subject,
+        'p': query_node_property,
+        't': query_node_object
+      }
+    }).done(function (json) {
+      console.log(json)
+      $("#resultTable tbody").html("");
+      $.each(json, function (key, d) {
+        $("#resultTable tbody").append("<tr>" +
+          "<td>" + d.s.value + "</td>" +
+          "<td>" + d.p.value + "</td>" +
+          "<td>" + d.o.value + "</td>" +
+          "</tr>")
+      });
+      $('#resultTable').DataTable({ "destroy": true});
+
     });
-
-    // $.ajax({
-    //   type: "POST",
-    //   url: apiurl + "query",
-    //   data: {
-    //     's': query_node_subject,
-    //     'p': query_node_property,
-    //     't': query_node_object
-    //   }
-    // }).done(function (json) {
-    //   console.log(json)
-    // $("#resultTable tbody").html("");
-    // $.each(json, function (key, d) {
-    //   $("#resultTable tbody").append("<tr>" +
-    //     "<td>" + d.s.value + "</td>" +
-    //     "<td>" + d.p.value + "</td>" +
-    //     "<td>" + d.o.value + "</td>" +
-    //     "</tr>")
-    // });
-    // $('#resultTable').DataTable();
-
-    // });
   }
 
   $.extend(true, $.fn.dataTable.defaults, {
