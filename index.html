@@ -271,6 +271,14 @@
     #querymode {
       cursor: pointer
     }
+    .link
+    {
+      width: 15px;
+      height: 15px;
+      background: url(img/link.png);
+      background-size: cover;
+
+    }
   </style>
 </head>
 
@@ -306,6 +314,7 @@
             <td>Object</td>
           </tr>
         </thead>
+        <tbody></tbody>
       </table>
     </div>
   </div>
@@ -1217,11 +1226,11 @@
     }).done(function (json) {
       console.log(json)
       $("#resultTable tbody").html("");
-      $.each(json.data, function (key, d) {
+      $.each(json["data"], function (key, d) {
         $("#resultTable tbody").append("<tr>" +
-          "<td>" + d.s.value + "</td>" +
-          "<td>" + d.p.value + "</td>" +
-          "<td>" + d.o.value + "</td>" +
+          "<td>" + d.s.value + "<a href='"+d.s.value+"' class='link' target='_new'></a></td>" +
+          "<td>" + d.p.value + "<a href='"+d.p.value+"' class='link' target='_new'></a></td>" +
+          "<td>" + d.o.value + "<a href='"+d.o.value+"' class='link' target='_new'></a></td>" +
           "</tr>")
       });
       $('#resultTable').DataTable({ "destroy": true});
