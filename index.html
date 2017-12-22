@@ -684,7 +684,7 @@
         expand[d.group] = false; init();
       });
 
-    link = linkg.selectAll("path.link").data(net.links, linkid);
+    link = linkg.selectAll("path.link").data(net.links);//, linkid);
     link.exit().remove();
 
     var link_ = link.enter()
