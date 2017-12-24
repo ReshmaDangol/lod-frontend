@@ -271,14 +271,13 @@
     #querymode {
       cursor: pointer
     }
-    .result_link
-    {
+
+    .result_link {
       width: 15px;
       height: 15px;
       background: url(img/link.png) no-repeat;
       background-size: contain;
-      margin-left: 10px; 
-
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -287,8 +286,18 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-lg-12">
-        <label id="querymode_lbl" for="querymode">Query mode</label>
-        <input type="checkbox" id="querymode">
+        <div>
+          <label id="querymode_lbl" for="querymode">Query mode</label>
+          <input type="checkbox" id="querymode">
+        </div>
+        <div>
+          <label id="toggle_subclass_lbl" for="toggle_subclass">Subclass</label>
+          <input type="checkbox" id="toggle_subclass" checked>
+        </div>
+        <div>
+          <label id="toggle_intersect_lbl" for="toggle_intersect">Class Intersection</label>
+          <input type="checkbox" id="toggle_intersect" checked>
+        </div>
       </div>
     </div>
     <div class="row">
@@ -331,7 +340,9 @@
   var pathname = window.location.hostname;
   var apiurl = "http://" + pathname + ":5000/";
   var querymode = false;
-  // var apiurl = "http://192.41.170.50:5000/"
+  var link_subclass = true;
+  var link_intersection = true;
+  var link_property = true;
   $(document).ready(function () {
 
     $("#querymode").on("change", function () {
@@ -339,6 +350,21 @@
       if ($(this).is(":checked")) querymode = true;
       else querymode = false
     });
+
+    $("#toggle_subclass").on("change", function () {
+      if ($(this).is(":checked"))
+        link_subclass = true;
+      else link_subclass = false;
+      loadGraph(userSelection);
+    });
+
+    $("#toggle_intersect").on("change", function () {
+      if ($(this).is(":checked"))
+      link_intersection = true;
+      else link_intersection = false;
+      loadGraph(userSelection);
+    });
+
 
     expand = expand || {};
     $.get(apiurl + "classlist", function (data) {
@@ -383,7 +409,7 @@
     dr = 10,      // default point radius
     off = 15,    // cluster hull offset
     expand = {}, // expanded clusters
-    data, net, force, hullg, hull, linkg, link, nodeg, node, thicklink;
+    data, net, force, hullg, hull, linkg, link, nodeg, node, thicklink, backup_data;
 
   var curve = d3.svg.line()
     .interpolate("cardinal-closed")
@@ -546,10 +572,17 @@
     $.ajax({
       type: "POST",
       url: apiurl + "class",
-      data: { 'class': JSON.stringify(userSelection) }
+      data: {
+        'class': JSON.stringify(userSelection),
+        'link_subclass': link_subclass,
+        'link_intersection': link_intersection,
+        'link_property': link_property
+      }
     }).done(function (json) {
+      backup_data = json
       data = json;
-
+      console.log("---->");
+      console.log(data.links);
       //this draws the line
       for (var i = 0; i < data.links.length; ++i) {
         o = data.links[i];
@@ -557,6 +590,7 @@
         o.target = data.nodes[o.target];
       }
 
+      backup_data = data
       hullg = vis.append("g");
       linkg = vis.append("g");
       nodeg = vis.append("g");
@@ -573,6 +607,7 @@
   }
 
   function init() {
+    console.log(data)
     if (force) force.stop();
 
     net = network(data, net, getGroup, expand);
@@ -1229,12 +1264,12 @@
       $("#resultTable tbody").html("");
       $.each(json["data"], function (key, d) {
         $("#resultTable tbody").append("<tr>" +
-          "<td>" + d.s.value + "<a href='"+d.s.value+"' class='result_link' target='_new'></a></td>" +
-          "<td>" + d.p.value + "<a href='"+d.p.value+"' class='result_link' target='_new'></a></td>" +
-          "<td>" + d.o.value + "<a href='"+d.o.value+"' class='result_link' target='_new'></a></td>" +
+          "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'></a></td>" +
+          "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'></a></td>" +
+          "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'></a></td>" +
           "</tr>")
       });
-      $('#resultTable').DataTable({ "destroy": true});
+      $('#resultTable').DataTable({ "destroy": true });
 
     });
   }
