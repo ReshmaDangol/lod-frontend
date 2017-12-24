@@ -348,7 +348,12 @@
     $("#querymode").on("change", function () {
       $(".fixed").removeClass("fixed");
       if ($(this).is(":checked")) querymode = true;
-      else querymode = false
+      else {
+        d3.selectAll("circle").each(function (d) {
+          releasenode(d);
+        });
+        querymode = false;
+      }
     });
 
     $("#toggle_subclass").on("change", function () {
@@ -360,7 +365,7 @@
 
     $("#toggle_intersect").on("change", function () {
       if ($(this).is(":checked"))
-      link_intersection = true;
+        link_intersection = true;
       else link_intersection = false;
       loadGraph(userSelection);
     });
@@ -548,7 +553,7 @@
     return curve(d.path); // 0.8
   }
 
-  // --------------------------------------------------------
+  // --------------------------------------------------------connectedNodes
 
   var body = d3.select("#graphContainer");
 
@@ -963,10 +968,8 @@
     }
   }
   function releasenode(d) {
-    if (querymode) {
-      d.fixed = false; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
-      //force.resume();
-    }
+    d.fixed = false; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+    //force.resume();
   }
 
 
@@ -980,7 +983,6 @@
       query(d.class);
       return;
     }
-
 
     var check = $(this).hasClass("selectedNode");
     if (!check) {
