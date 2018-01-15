@@ -909,14 +909,15 @@
             return 'block';
         })
 
-      node.attr('transform', function nodeTransform(d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      })
-      // .attr("cx", function (d) {
-      //     return d.x = Math.max(r, Math.min(width - r, d.x));
-      //   })
-      //   .attr("cy", function (d) { return d.y = Math.max(r, Math.min(height - r, d.y)); });
+      var r = 32;
+      var w = $("#graphContainer>svg").width();
+      var h = $("#graphContainer>svg").height();
 
+      node.attr('transform', function nodeTransform(d) {
+        return "translate(" + Math.max(r, Math.min(w - r, d.x)) + "," +Math.max(r, Math.min(h - r, d.y)) + ")";
+      });
+
+  
       node.each(collide(0.5))
     });
 

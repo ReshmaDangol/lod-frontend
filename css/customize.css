@@ -1,0 +1,89 @@
+body {
+    font: 10px sans-serif;
+  }
+
+  circle.node {
+    fill: #fff;
+    stroke: #555;
+    min-width: 30px;
+  }
+
+  circle.leaf {
+    /* stroke: #fff; */
+  }
+
+  .hull {
+    fill: lightsteelblue;
+    fill-opacity: 0.3;
+  }
+
+  .link {
+    stroke: #999;
+    stroke-width: 1;
+    fill-opacity: 0;
+    stroke-opacity: 1;
+    stroke-dasharray: 8;
+    /* stroke-opacity: 0.5; */
+    /* pointer-events: none; */
+  }
+
+  .hoveraction {
+    cursor: pointer;
+    stroke-dasharray: 0;stroke-width: 2;
+  }
+
+  .hoveraction:hover {
+    stroke-width: 11;
+  }
+
+
+  .node_label {
+    stroke: #333;
+    font: 12px sans-serif;
+    /* pointer-events: none; */
+    stroke: none;
+  }
+
+  #expandDiv {
+    position: absolute;
+    z-index: 1;
+    background: rgba(254,254,254,0.7);
+    border-radius: 10px;
+    border: 1px  solid #ccc;
+  }
+
+  .class,
+  .set_path,
+  .fineline {
+    stroke: #000;
+  }
+
+  .class,
+  .object,
+  .disjoint {
+    fill: #acf;
+  }
+
+  .special {
+    stroke-dasharray: 8;
+    fill: #fff !important;
+  }
+
+
+  .symbol {
+    fill: #69c;
+  }
+
+  .nostroke {
+
+    stroke: none;
+  }
+
+
+  .nofill {
+    fill: none;
+  }
+
+  ellipse{
+    fill: #fff
+  }

@@ -41,7 +41,8 @@
 
     .hoveraction {
       cursor: pointer;
-      stroke-dasharray: 0;stroke-width: 2;
+      stroke-dasharray: 0;
+      stroke-width: 2;
     }
 
     .hoveraction:hover {
@@ -58,9 +59,9 @@
     #expandDiv {
       position: absolute;
       z-index: 1;
-      background: rgba(254,254,254,0.7);
+      background: rgba(254, 254, 254, 0.7);
       border-radius: 10px;
-      border: 1px  solid #ccc;
+      border: 1px solid #ccc;
     }
 
     .class,
@@ -95,7 +96,7 @@
       fill: none;
     }
 
-    ellipse{
+    ellipse {
       fill: #fff
     }
   </style>
@@ -118,35 +119,9 @@
   <div id="svgarea"></div>
   <div id="expandDiv" class="ui-widget-content"></div>
   <script type="text/javascript">
-    $( function() {
-    $( "#expandDiv" ).draggable();
-  } );
-    var set = d3.select("#set").append("g").attr({ "transform": "translate(150,50)" })
-    set.append("circle")
-      .attr("class", "class special")
-      .attr("r", 25)
-
-    set_g = set.append("g")
-      .attr("class", "embedded")
-      .attr("transform", "translate(-5,0)")
-
-    set_g.append("path")
-      .attr("class", "nostroke symbol set_path")
-      .attr("d", "m 5,-13 c 5,2.5 8.5,7.5 8.5,13 0,5 -3,10 -8.5,13 -5,-2.5 -8.5,-7.5 -8.5,-13 0,-5 3,-10 8.5,-13")
-
-    set_g.append("circle")
-      .attr("class", "nofill fineline")
-      .attr("r", 14)
-
-    set_g.append("circle")
-      .attr("class", "nofill fineline")
-      .attr("r", 14)
-      .attr("cx", 10)
-
-    set_g.append("path")
-      .attr("class", "nofill set_path")
-      .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
-
+    $(function () {
+      $("#expandDiv").draggable();
+    });
 
 
 
@@ -497,6 +472,7 @@
       newnode.append("circle")
         // if (d.size) -- d.size > 0 when d is a group node.
         .attr("class", function (d) {
+          console.log(d.size,"<<--size-->>",(d.size ? "" : " leaf"))
           circle_class = ''
           if (d.intersect == 1)
             circle_class = 'class special'
@@ -523,9 +499,10 @@
         })
 
 
-        newnode.append("circle")
+      newnode.append("circle")
         // if (d.size) -- d.size > 0 when d is a group node.
         .attr("class", function (d) {
+          console.log(d.size,"<<<<--size-->>>>",(d.size ? "" : " leaf"))
           return "node" + (d.size ? "" : " leaf");
         })
         .attr("r", function (d) {
@@ -731,7 +708,7 @@
         .style("pointer-events", "none")
         .text("function(d,i){return 'label '+i}");
 
-        var rect = svg_.append("ellipse")
+      var rect = svg_.append("ellipse")
         .attr("cx", 50)
         .attr("cy", 120)
         .attr("rx", 25)
