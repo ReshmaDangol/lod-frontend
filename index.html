@@ -427,10 +427,11 @@
     return n.size ? "_g_" + n.group : n.name;
   }
 
-  function linkid(l) {
-    var u = nodeid(l.source),
-      v = nodeid(l.target);
-    return u < v ? u + "|" + v : v + "|" + u;
+  function getlinkid(l) {
+    return l.linkid;
+    // var u = nodeid(l.source),
+    //   v = nodeid(l.target);
+    // return u < v ? u + "|" + v : v + "|" + u;
   }
 
   function getGroup(n) { return n.group; }
@@ -724,7 +725,7 @@
         expand[d.group] = false; init();
       });
 
-    link = linkg.selectAll("path.link").data(net.links);//, linkid);
+    link = linkg.selectAll("path.link").data(net.links, getlinkid);
     link.exit().remove();
 
     var link_ = link.enter()
