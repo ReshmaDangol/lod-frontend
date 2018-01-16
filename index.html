@@ -428,10 +428,10 @@
   }
 
   function getlinkid(l) {
-    return l.linkid;
-    // var u = nodeid(l.source),
-    //   v = nodeid(l.target);
+    var u = nodeid(l.source),
+      v = nodeid(l.target);
     // return u < v ? u + "|" + v : v + "|" + u;
+    return l.linkid + (u < v ? u + "|" + v : v + "|" + u);
   }
 
   function getGroup(n) { return n.group; }
@@ -728,8 +728,7 @@
     link = linkg.selectAll("path.link").data(net.links, getlinkid);
     link.exit().remove();
 
-    var link_ = link.enter()
-    link = link_.append("path")
+    link.enter().append("path")
       .attr("class",
       function (d) {
         if (d.intersect == 1 || d.subclass == 1) return "link";
@@ -747,7 +746,9 @@
           return 'url(#endarrowhead' + d.target.name + d.linkid + ')';
       });
 
-    thicklink = link_.append("path")
+    thicklink = linkg.selectAll("path.thicklink").data(net.links, getlinkid);
+    thicklink.exit().remove();
+    thicklink.enter().append("path")
       .attr("class", "thicklink")
       .attr("display", function (d) {
         if (d.subclass == 1 || d.intersect == 1) return "none";
@@ -1052,8 +1053,8 @@
   var p_data;
   function expandLink() {
     d = d3.select(this).node().__data__;
-    var source = d.source.nodes[0].class;
-    var target = d.target.nodes[0].class;
+    var source = d.source.class;//nodes[0].class;
+    var target = d.target.class;//nodes[0].class;
     var bidirection = d.bidirection;
     d3.select("#expandDiv")
       .style("left", d3.event.x + 50 + "px")
@@ -1072,12 +1073,12 @@
     var parts = uri.split("/");
     var lastPart = parts[parts.length - 1];
     var checkHash = lastPart.split("#")
-    console.log(checkHash[0])
+    // console.log(checkHash[0])
     if (checkHash.length > 0)
       return checkHash[1]
-    else return checkHash[0]
-
+    else return checkHash[0];
   }
+  
   function cssPropertyInfo(left, right) {
     $("#expandDiv *").remove();
     $("#expandDiv").append("<div><label for='toggle_inverseof'>InverseOf Property</label><input id='toggle_inverseof' type='checkbox' name='vehicle' value='1'></div>");
