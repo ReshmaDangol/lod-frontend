@@ -307,13 +307,15 @@
     .result_link {
       width: 15px;
       height: 15px;
-      background: url(img/link.png) no-repeat;
-      background-size: contain;
       margin-left: 10px;
     }
 
     circle.node.queryNode {
       fill: #B3B3B3;
+    }
+
+    .result_link img {
+      width: 10px;
     }
   </style>
 </head>
@@ -1319,9 +1321,9 @@
       $("#resultTable tbody").html("");
       $.each(json["data"], function (key, d) {
         $("#resultTable tbody").append("<tr>" +
-          "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'></a></td>" +
-          "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'></a></td>" +
-          "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'></a></td>" +
+          "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+          "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+          "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
           "</tr>")
       });
       $('#resultTable').DataTable({ "destroy": true });
