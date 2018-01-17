@@ -299,15 +299,21 @@
     #querymode {
       cursor: pointer
     }
+
     #graphContainer {
-    padding: 0;
-}
+      padding: 0;
+    }
+
     .result_link {
       width: 15px;
       height: 15px;
       background: url(img/link.png) no-repeat;
       background-size: contain;
       margin-left: 10px;
+    }
+
+    circle.node.queryNode {
+      fill: #B3B3B3;
     }
   </style>
 </head>
@@ -322,7 +328,7 @@
     <div class="row">
       <div class="col-lg-2 col-md-3" style="background:rgba(209, 209, 209, 0.2)">
         <div class="myGrid">
-            <div class="gridTitle">Options</div>
+          <div class="gridTitle">Options</div>
           <div>
             <label id="querymode_lbl" for="querymode">Query mode</label>
             <input type="checkbox" id="querymode">
@@ -1024,12 +1030,14 @@
     if (querymode) {
       d = d3.select(this).node().__data__;
       query(d.class);
+      $(".queryNode").removeClass("queryNode");
+      $(this).addClass("queryNode")
       return;
     }
 
     var check = $(this).hasClass("selectedNode");
     if (!check) {
-      $(".selectedNode").removeClass("selectedNode")
+      $(".selectedNode").removeClass("selectedNode");
       node.style("opacity", 1);
       link.style("opacity", 1);
       toggle = 0;
