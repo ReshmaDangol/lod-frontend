@@ -386,11 +386,14 @@
   var linkedByIndex = {};
   var userSelection = []
   var pathname = window.location.hostname;
+  pathname = "192.41.170.50";
   var apiurl = "http://" + pathname + ":5000/";
   var querymode = false;
   var link_subclass = true;
   var link_intersection = true;
   var link_property = true;
+  var query_node_subject = '', query_node_object = '', query_node_property = '';
+
   $(document).ready(function () {
 
     $("#querymode").on("change", function () {
@@ -470,9 +473,8 @@
 
   var fill = d3.scale.category20();
 
-
   function nodeid(n) {
-    return n.size ? "_g_" + n.group : n.name;
+    return n.size ? "_g_" + n.group : n.name+ n.id;
   }
 
   function getlinkid(l) {
@@ -519,7 +521,7 @@
         i = index(n),
         l = gm[i] || (gm[i] = gn[i]) || (gm[i] = {
           group: i, size: 0, nodes: [], name: n.name,
-          equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass, class: n.class
+          equivalent: n.equivalent, intersect: n.intersect, subclass: n.subclass, class: n.class, id: n.id
         });
 
       if (expand[i]) {
@@ -828,7 +830,7 @@
         return circle_class + " node" + (d.size ? "" : " leaf");
       })
       .attr("id", function (d) {
-        return d.name
+        return d.name + d.id
       })
       .attr("r", function (d) {
         if (d.intersect == 1) return 25;
@@ -1030,8 +1032,8 @@
   }
   function connectedNodes() {
     if (querymode) {
-      d = d3.select(this).node().__data__;
-      query(d.class);
+      d = d3.select(this).node().__data__;      
+      querySubject(d.class);
       $(".queryNode").removeClass("queryNode");
       $(this).addClass("queryNode")
       return;
@@ -1145,9 +1147,9 @@
         $(".inverselist").hide(100);
     });
     jQuery.each(p_data, function (i, d) {
-
+      console.log(d)
       $("#expandDiv").append("<div class='row propertylist'>" +
-        "<div class='p_name col-lg-12'>" + getName(d["p"]) + " - " + d["count"] + "</div>" +
+        "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" + getName(d["p"]) + " - " + d["count"] + "</div>" +
         "<div class='col-lg-12 link'><div class='arrowline'></div><article class='basicDimen " +
         (d["c1"] == left ? "rightArrow" : "leftArrow")
         + "'></article></div>" +
@@ -1172,6 +1174,14 @@
         );
       });
     });
+  }
+  function queryProperty(s, p, o) {
+    console.log(s)
+    query_node_subject = s;
+    query_node_object = o;
+    query_node_property = p;
+    query();
+
   }
   function drawPropertyInfo(left, right) {
     d3.select("#expandDiv svg").remove();
@@ -1285,10 +1295,24 @@
 
   }
 
-  var query_node_subject, query_node_object = '', query_node_property = '';
+  function querySubject(s) {
+    
+    var temp = s.split("~~~")
+    if(temp.length > 1)
+    {
+      query_node_subject = temp[0];
+      query_node_object = temp[1];
+    }
+    else
+    {
+      query_node_subject = s;
+      query_node_object = '';      
+    }
+    query_node_property = '';
+    query();
+  }
+  function query() {
 
-  function query(s) {
-    query_node_subject = s;
 
     // $('#resultTable').DataTable({
     //   "ajax": {
@@ -1307,7 +1331,7 @@
     //   ],
     //   "destroy": true
     // });
-
+    console.log(query_node_subject)
     $.ajax({
       type: "POST",
       url: apiurl + "query",
@@ -1320,11 +1344,24 @@
       console.log(json)
       $("#resultTable tbody").html("");
       $.each(json["data"], function (key, d) {
-        $("#resultTable tbody").append("<tr>" +
-          "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-          "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-          "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-          "</tr>")
+        $("#resultTable tbody").append(
+          function () {
+            if (typeof d.o === 'undefined' || !d.o)
+              return "<tr>" +
+                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>"+
+                "</tr>";
+            else if (typeof d.p === 'undefined' || !d.p)
+              return "<tr>" +
+                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "</tr>";
+            else
+              return "<tr>" +
+                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "</tr>";
+          });
       });
       $('#resultTable').DataTable({ "destroy": true });
 
