@@ -635,7 +635,7 @@
         'link_property': link_property
       }
     }).done(function (json) {
-      backup_data = json
+      backup_data = json;
       data = json;
       console.log("---->");
       console.log(data.links);
@@ -1126,7 +1126,7 @@
     var lastPart = parts[parts.length - 1];
     var checkHash = lastPart.split("#")
     // console.log(checkHash[0])
-    if (checkHash.length > 0)
+    if (checkHash.length > 1)
       return checkHash[1]
     else return checkHash[0];
   }
