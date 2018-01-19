@@ -1147,7 +1147,6 @@
         $(".inverselist").hide(100);
     });
     jQuery.each(p_data, function (i, d) {
-      console.log(d)
       $("#expandDiv").append("<div class='row propertylist'>" +
         "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" + getName(d["p"]) + " - " + d["count"] + "</div>" +
         "<div class='col-lg-12 link'><div class='arrowline'></div><article class='basicDimen " +
@@ -1176,7 +1175,7 @@
     });
   }
   function queryProperty(s, p, o) {
-    console.log(s)
+    // console.log(s)
     query_node_subject = s;
     query_node_object = o;
     query_node_property = p;
@@ -1311,6 +1310,9 @@
     query_node_property = '';
     query();
   }
+  function htmlDecode(html){
+  return html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
   function query() {
 
 
@@ -1331,7 +1333,6 @@
     //   ],
     //   "destroy": true
     // });
-    console.log(query_node_subject)
     $.ajax({
       type: "POST",
       url: apiurl + "query",
@@ -1344,29 +1345,34 @@
       console.log(json)
       $("#resultTable tbody").html("");
       $.each(json["data"], function (key, d) {
+        // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
         $("#resultTable tbody").append(
           function () {
             if (typeof d.o === 'undefined' || !d.o)
               return "<tr>" +
-                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>"+
+                "<td>" + htmlDecode(typeof d.s_label==='undefined'? (typeof d.s_name==='undefined'? d.s.value: d.s_name.value): d.s_label.value) + 
+                "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>"+
                 "</tr>";
             else if (typeof d.p === 'undefined' || !d.p)
               return "<tr>" +
-                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-                "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + htmlDecode(typeof d.s_label==='undefined'? (typeof d.s_name==='undefined'? d.s.value: d.s_name.value): d.s_label.value)+ "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + htmlDecode(typeof d.o_label==='undefined'? (typeof d.o_name==='undefined'? d.o.value: d.o_name.value): d.o_label.value) + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
                 "</tr>";
             else
               return "<tr>" +
-                "<td>" + d.s.value + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-                "<td>" + d.p.value + "<a href='" + d.p.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
-                "<td>" + d.o.value + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + htmlDecode(typeof d.s_label==='undefined'? (typeof d.s_name==='undefined'? d.s.value: d.s_name.value):d.s_label.value) + "<a href='" + d.s.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + htmlDecode(typeof d.p_label==='undefined'? (typeof d.p_name==='undefined'? d.p.value: d.p_name.value): d.p_label.value) + "<a href='" + d.p.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
+                "<td>" + htmlDecode(typeof d.o_label==='undefined'? (typeof d.o_name==='undefined'? d.o.value: d.o_name.value): d.o_label.value) + "<a href='" + d.o.value + "' class='result_link' target='_new'><img src='img/link.png'></a></td>" +
                 "</tr>";
-          });
+          })
       });
-      $('#resultTable').DataTable({ "destroy": true });
+      // $('#resultTable').DataTable({ "destroy": true });
 
     });
   }
+
+
+
 
   $.extend(true, $.fn.dataTable.defaults, {
     "searching": false
