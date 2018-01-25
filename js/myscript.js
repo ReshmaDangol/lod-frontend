@@ -325,7 +325,6 @@ function loadGraph(userSelection) {
 }
 
 function init() {
-    console.log(data)
     if (force) force.stop();
 
     net = network(data, net, getGroup, expand);
@@ -388,7 +387,8 @@ function init() {
             return "arrowhead" + d.source.name;
         })
         .attr("refX", function (d) {
-            return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width               
+            // return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width    
+            return -(dr + 1) * 3 + 6;           
         })
         .append('svg:path')
         .attr('d', 'M0,0L10,-5L10,5Z')
@@ -413,7 +413,8 @@ function init() {
             return "endarrowhead" + d.target.name + d.linkid;
         })
         .attr("refX", function (d) {
-            return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width               
+            // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width  
+            return (dr + 1) * 3 + 4;             
         })
         .attr("refY", function (d) {
             if (d.subclass == 1)
@@ -497,7 +498,8 @@ function init() {
         .attr("r", function (d) {
             if (d.intersect == 1) return 25;
             else
-                return (d.size ? d.size + dr : dr + 1) * 3 + 4; //size of circles
+                // return (d.size ? d.size + dr : dr + 1) * 3 + 4; //size of circles
+                return (dr + 1) * 3 + 4;
         })
         .style("cursor", function (d) {
             if (typeof expand[d.group] != "undefined" || expand[d.group] == true || d.size == 1) return "default";
@@ -514,7 +516,8 @@ function init() {
             return "node" + (d.size ? "" : " leaf");
         })
         .attr("r", function (d) {
-            return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
+            // return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
+            return (dr + 1) * 3;
         })
         // .style("fill", function (d) { return fill(d.group); })
         .on("dblclick", equivalentClass)
@@ -637,14 +640,16 @@ function init() {
 
     linkedByIndex = {};
     for (i = 0; i < net.links.length; i++) {
-        var a = net.links[i].source.index
-        var b = net.links[i].target.index
+        var a = net.links[i].source.class;//index
+        var b = net.links[i].target.class;//index
         linkedByIndex[a + "," + b] = 1;
     }
 
     //To included the clicked node for opacity1
     for (i = 0; i < net.nodes.length; i++) {
-        linkedByIndex[i + "," + i] = 1;
+        var temp = net.nodes[i].class
+        linkedByIndex[temp + "," + temp] = 1;
+        // linkedByIndex[i + "," + i] = 1;
     }
     var node_drag = force.drag()
         .on("dragstart", dragstart);
@@ -685,7 +690,8 @@ function releasenode(d) {
 
 //This function looks up whether a pair are neighbours
 function neighboring(a, b) {
-    return linkedByIndex[a.index + "," + b.index];
+    // return linkedByIndex[a.index + "," + b.index];
+    return linkedByIndex[a.class + "," + b.class];
 }
 function connectedNodes() {
     if (querymode) {
@@ -712,12 +718,14 @@ function connectedNodes() {
         node.style("opacity", function (o) {
             // console.log(neighboring(d, o),neighboring(o, d))
             var return_ = neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-            if (return_ == 1) console.log(d.name, o.name)
+            // if (return_ == 1) console.log(d.name, o.name)
             return return_;
         });
 
+        // console.log(link)
         link.style("opacity", function (o) {
-            return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
+            return d.class == o.source.class | d.class == o.target.class ? 1 : 0.1;
+            // return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
         });
         //Reduce the op
         toggle = 1;
@@ -962,7 +970,7 @@ function loadProperty(p) {
     }).done(function (json) {
         $("#facet_property *").remove();
         $.each(json, function (key, d) {
-            $("#facet_property").append("<div><lable for='proeprty_" + key + "'>" + d + "</label> <input type='checkbox' name='propertylist' value='" + d + "' id='proeprty_" + key + "'/></div>");
+            $("#facet_property").append("<div><lable for='proeprty_" + key + "'><input type='checkbox' name='propertylist' value='" + d + "' id='proeprty_" + key + "'/>" + getName(d) + "</label> </div>");
         });
     });
 }
@@ -1116,7 +1124,8 @@ function initInstanceGraph(gdata) {
             return "endarrowhead" + d.target.name + d.linkid;
         })
         .attr("refX", function (d) {
-            return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width               
+            // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width         
+            return (dr + 1) * 3 + 4;      
         })
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
