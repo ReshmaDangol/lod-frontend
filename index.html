@@ -81,12 +81,26 @@
 
     #expandDiv {
       width: 30%;
+      position: absolute;
+      z-index: 1;
       max-height: 90%;
-      overflow-y: auto;
       padding: 10px 60px;
       min-height: 200px;
-      display: none;
     }
+
+    #expandDiv,
+    #instanceDiv {
+
+      overflow-y: auto;
+
+
+      display: none;
+
+      background: rgba(254, 254, 254, 0.7);
+      border: 1px solid #ccc;
+    }
+
+    #instanceDiv {}
 
     #close_popup {
       position: absolute;
@@ -249,12 +263,7 @@
       stroke: none;
     }
 
-    #expandDiv {
-      position: absolute;
-      z-index: 1;
-      background: rgba(254, 254, 254, 0.7);
-      border: 1px solid #ccc;
-    }
+
 
     .class,
     .set_path,
@@ -323,20 +332,35 @@
     .result_link img {
       width: 10px;
     }
+
+    .instanceInfo>div {
+      padding: 5px;
+    }
   </style>
 </head>
 
 <body>
   <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
 
-      </div>
-    </div>
     <div class="row">
       <div class="col-lg-2 col-md-3" style="background:rgba(209, 209, 209, 0.2)">
         <div class="myGrid">
           <div class="gridTitle">Options</div>
+          <div>
+            <select id="dataset_name" name="dataset_name">
+              <option></option>
+              <option value="archiveshub">archiveshub</option>
+              <option value="aat">aat</option>
+              <option value="linkedmdb">linkedmdb</option>
+              <option value="jamendo">jamendo</option>
+              <option value="tpqi_k">tpqi_k</option>
+            </select>
+          </div>
+
+          <div>
+              <label id="locknode_lbl" for="locknode">Lock Nodes</label>
+              <input type="checkbox" id="locknode">
+            </div>
           <div>
             <label id="querymode_lbl" for="querymode">Query mode</label>
             <input type="checkbox" id="querymode">
@@ -362,33 +386,38 @@
     </div>
   </div>
 
+
   <div id="expandDiv" class="container-fluid ui-widget-content"></div>
-  
-  <div>
-    <div id="instanceGraph">
+
+
+  <div class="container-fluid">
+    <div class="row" id="instanceDiv">
+      <div id="instanceGraph" class="col-lg-9">
+      </div>
+      <div id="instanceInfo" class="col-lg-3"></div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="col-lg-2">
-      <div class="gridTitle">Properties for </div>
-      <div id="facet_property">
-
+    <div class="row">
+      <div class="col-lg-2">
+        <div class="gridTitle">Properties for </div>
+        <div id="facet_property">
+        </div>
+      </div>
+      <div class="col-lg-10">
+        <table id="resultTable" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <td>Subject</td>
+              <td>Predicate</td>
+              <td>Object</td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
       </div>
     </div>
-    <div class="col-lg-10">
-      <table id="resultTable" width="100%" cellspacing="0">
-        <thead>
-          <tr>
-            <td>Subject</td>
-            <td>Predicate</td>
-            <td>Object</td>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
   </div>
+
 </body>
 <script type="text/javascript">
 
