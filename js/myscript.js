@@ -1,9 +1,20 @@
 $(function () {
-    $("#expandDiv").draggable();
+    $('.selectpicker').selectpicker({
+        // style: 'btn-info',
+        size: false,
+        showTick:true
+      });
+      
+    $("#expandDivClass").draggable({ cursor: "move" });
+    $("#expandDivProperty").draggable({ cursor: "move" });
     // $("#instanceDiv").draggable();
-    $("#expandDiv").on("click", "#close_popup", function () {
-        $("#expandDiv").hide();
-    });
+    // $("#expandDivProperty").on("click", "#close_popup", function () {
+    //     $("#expandDivProperty").hide();
+    // });
+
+    $(".close_popup").on("click", function () {
+        $(this).parent().parent().hide();
+    })
 });
 var toggle = 0;
 //Create an array logging what is connected to what
@@ -20,22 +31,30 @@ var link_property = true;
 var query_node_subject = '', query_node_object = '', query_node_property = '', query_property_filter = '';
 var database_name = '';
 $(document).ready(function () {
-    
+    $(".accordion").accordion({
+        collapsible: true,
+        heightStyle: "content"
+    });
+
     $("#dataset_name").on("change", function () {
+        userSelection = [];
+        $("#graphContainer>svg").remove();
+        $("#expandDivProperty").hide();
         database_name = $("#dataset_name").val();
         loadClass();
+        $(".accordion").accordion("activate", 1);
     });
     $("#locknode").on("change", function () {
         $(".fixed").removeClass("fixed");
         if ($(this).is(":checked")) locknode = true;
         else {
-            d3.selectAll("#mainGraph circle").each(function (d) {
+            d3.selectAll("#graphContainer circle").each(function (d) {
                 releasenode(d);
             });
             locknode = false;
         }
     });
-    $("#querymode").on("change", function () {        
+    $("#querymode").on("change", function () {
         if ($(this).is(":checked")) querymode = true;
         else {
             // d3.selectAll("#mainGraph circle").each(function (d) {
@@ -45,11 +64,12 @@ $(document).ready(function () {
         }
     });
 
-    $("#facet_property").on("change", "input:checkbox[name=propertylist]", function () {
+    $("#facet_property").on("change", "input:radio[name=propertylist]", function () {
         query_property_filter = []
-        $("input:checkbox[name=propertylist]:checked").each(function () {
-            query_property_filter.push($(this).val());
-        });
+        // $("input:checkbox[name=propertylist]:checked").each(function () {
+        //     query_property_filter.push($(this).val());
+        // });
+        query_property_filter.push($(this).val());
         query()
 
     });
@@ -85,8 +105,7 @@ $(document).ready(function () {
 
 });
 
-function loadClass()
-{
+function loadClass() {
     $.ajax({
         type: "POST",
         url: apiurl + "classlist",
@@ -98,8 +117,8 @@ function loadClass()
         // $.get(apiurl + "classlist", function (data) {
         json = jQuery.parseJSON(JSON.stringify(data));
         $(data).each(function () {
-            $("#node_list").append("<div class='nodeList' data-uri='" + this.class + "'>"+
-            // "<span class='nodeURI'> " + this.class.split(this.name)[0] + "</span>" +
+            $("#node_list").append("<div class='nodeList' data-uri='" + this.class + "'>" +
+                // "<span class='nodeURI'> " + this.class.split(this.name)[0] + "</span>" +
                 "<span class='nodeName'>" + this.name + "</span>" +
                 "<span class='nodeCount'>" + new Intl.NumberFormat().format(this.count) + "</span></div>");
         });
@@ -388,7 +407,7 @@ function init() {
         })
         .attr("refX", function (d) {
             // return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width    
-            return -(dr + 1) * 3 + 6;           
+            return -(dr + 1) * 3 + 6;
         })
         .append('svg:path')
         .attr('d', 'M0,0L10,-5L10,5Z')
@@ -414,7 +433,7 @@ function init() {
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width  
-            return (dr + 1) * 3 + 4;             
+            return (dr + 1) * 3 + 4;
         })
         .attr("refY", function (d) {
             if (d.subclass == 1)
@@ -693,9 +712,11 @@ function neighboring(a, b) {
     // return linkedByIndex[a.index + "," + b.index];
     return linkedByIndex[a.class + "," + b.class];
 }
+
 function connectedNodes() {
     if (querymode) {
         d = d3.select(this).node().__data__;
+        query_property_filter = '';
         querySubject(d.class);
         $(".queryNode").removeClass("queryNode");
         $(this).addClass("queryNode")
@@ -713,8 +734,8 @@ function connectedNodes() {
         //Reduce the opacity of all but the neighbouring nodes
         $(this).addClass("selectedNode")
         d = d3.select(this).node().__data__;
-        console.log("___________")
-        // console.log(linkedByIndex)
+        classDetail(d.class);
+
         node.style("opacity", function (o) {
             // console.log(neighboring(d, o),neighboring(o, d))
             var return_ = neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
@@ -773,7 +794,7 @@ function expandLink() {
     var source = d.source.class;//nodes[0].class;
     var target = d.target.class;//nodes[0].class;
     var bidirection = d.bidirection;
-    d3.select("#expandDiv")
+    d3.select("#expandDivProperty")
         .style("left", d3.event.x + 50 + "px")
         .style("top", d3.event.y / 2 + "px");
     $.ajax({
@@ -797,14 +818,15 @@ function getName(uri) {
 }
 
 function cssPropertyInfo(left, right) {
-    $("#expandDiv").show();
-    $("#expandDiv *").remove();
-    $("#expandDiv").append("<div id='close_popup'><span class='glyphicon glyphicon-search'></span>close</div>");
-    $("#expandDiv").append("<div><label for='toggle_inverseof'>InverseOf Property</label><input id='toggle_inverseof' type='checkbox' name='vehicle' value='1'></div>");
-    $("#expandDiv").append("<div class='rotate class_name_left'>" + getName(left) + "</div>" +
-        "<div class='rotate class_name_right'>" + getName(right) + "</div>"
-    );
-    $("#expandDiv").on("click", "#toggle_inverseof", function () {
+    $("#expandDivProperty").show();
+    $("#expandDivProperty_content *").remove();
+    // $("#expandDivProperty_content").append("<div class='rotate class_name_left'>" + getName(left) + "</div>" +
+    //     "<div class='rotate class_name_right'>" + getName(right) + "</div>"
+    // );
+    $("#property_left").html(getName(left));
+    $("#property_right").html(getName(right));
+
+    $("#expandDivProperty_content").on("click", "#toggle_inverseof", function () {
         if (this.checked) {
             $(".inverselist").show(100);
         }
@@ -812,7 +834,7 @@ function cssPropertyInfo(left, right) {
             $(".inverselist").hide(100);
     });
     jQuery.each(p_data, function (i, d) {
-        $("#expandDiv").append("<div class='row propertylist'>" +
+        $("#expandDivProperty_content").append("<div class='row propertylist'>" +
             "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" + getName(d["p"]) + " - " + d["count"] + "</div>" +
             "<div class='col-lg-12 link'><div class='arrowline'></div><article class='basicDimen " +
             (d["c1"] == left ? "rightArrow" : "leftArrow")
@@ -839,6 +861,7 @@ function cssPropertyInfo(left, right) {
         });
     });
 }
+
 function queryProperty(s, p, o) {
     // console.log(s)
     query_node_subject = s;
@@ -847,117 +870,117 @@ function queryProperty(s, p, o) {
     query();
 
 }
-function drawPropertyInfo(left, right) {
-    d3.select("#expandDiv svg").remove();
-    var svg_ = d3.select("#expandDiv").append("svg");
-    console.log(p_data)
-    svg_.attr("width", 300)
-        .attr("height", 300);
+// function drawPropertyInfo(left, right) {
+//     d3.select("#expandDivProperty svg").remove();
+//     var svg_ = d3.select("#expandDivProperty").append("svg");
+//     console.log(p_data)
+//     svg_.attr("width", 300)
+//         .attr("height", 300);
 
-    svg_.append('marker')
-        .attr("class", "marker")
-        .attr({
-            'viewBox': '-0 -5 10 10',
-            'refX': 10,
-            'refY': 0,
-            'orient': 'auto',
-            'markerWidth': 13,
-            'markerHeight': 13,
-            'xoverflow': 'visible',
-            'markerUnits': 'userSpaceOnUse'
-        })
-        .attr("id", "endarrowhead")
-        .append('svg:path')
-        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-        .attr('fill', '#999')
-        .style('stroke', 'none');
+//     svg_.append('marker')
+//         .attr("class", "marker")
+//         .attr({
+//             'viewBox': '-0 -5 10 10',
+//             'refX': 10,
+//             'refY': 0,
+//             'orient': 'auto',
+//             'markerWidth': 13,
+//             'markerHeight': 13,
+//             'xoverflow': 'visible',
+//             'markerUnits': 'userSpaceOnUse'
+//         })
+//         .attr("id", "endarrowhead")
+//         .append('svg:path')
+//         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+//         .attr('fill', '#999')
+//         .style('stroke', 'none');
 
-    svg_.append("marker")
-        .attr("class", "marker")
-        .attr({
-            'viewBox': '-0 -5 10 10',
-            'refX': 0,
-            'refY': 0,
-            'orient': 'auto',
-            'markerWidth': 13,
-            'markerHeight': 13,
-            'xoverflow': 'visible',
-            'markerUnits': 'userSpaceOnUse'
-        })
-        .attr("id", "arrowhead")
-        .append('svg:path')
-        .attr('d', 'M0,0L10,-5L10,5Z')
-        .attr('fill', '#000')
-        .style('stroke', 'none');
+//     svg_.append("marker")
+//         .attr("class", "marker")
+//         .attr({
+//             'viewBox': '-0 -5 10 10',
+//             'refX': 0,
+//             'refY': 0,
+//             'orient': 'auto',
+//             'markerWidth': 13,
+//             'markerHeight': 13,
+//             'xoverflow': 'visible',
+//             'markerUnits': 'userSpaceOnUse'
+//         })
+//         .attr("id", "arrowhead")
+//         .append('svg:path')
+//         .attr('d', 'M0,0L10,-5L10,5Z')
+//         .attr('fill', '#000')
+//         .style('stroke', 'none');
 
-    // var drag = d3.behavior.drag()
-    //   .on("dragstart", function () {
-    //     d3.event.sourceEvent.stopPropagation()
-    //   })
-    // .on("drag", dragmove);
-
-
-    var series = [[{ time: 50, value: 50 }, { time: 250, value: 50 }], [{ time: 50, value: 80 }, { time: 250, value: 80 }]];
-    var pline = d3.svg.line()
-        .interpolate("linear")
-        .x(function (d, i) {
-            alert(i)
-            return d.time;
-        })
-        .y(function (d, i) { return d.value; });
-
-    group = svg_.append("g");
-    group.selectAll(".pline")
-        .data(p_data)
-        .enter().append("path")
-        .attr("class", "pline")
-        .attr("d", function (d, i) {
-            var x1 = 50;
-            var x2 = 250;
-            var y = 50 + 30 * i;
-            return "M " + x1 + " " + y + " L " + x2 + " " + y;
-        })
-        .attr('marker-end', function (d) {
-            if (d.c1 == left)// || d.inverse!=null) 
-                return 'url(#endarrowhead)';
-        })
-        .attr('marker-start', function (d) {
-            if (d.c2 == left)// || d.inverse!=null)
-                return 'url(#arrowhead)';
-
-        })
-        .attr('id', function (d, i) { return "property_" + i; })
+//     // var drag = d3.behavior.drag()
+//     //   .on("dragstart", function () {
+//     //     d3.event.sourceEvent.stopPropagation()
+//     //   })
+//     // .on("drag", dragmove);
 
 
-    group.selectAll(".edgelabel").data(p_data)
-        .enter()
-        .append('text')
-        .style("pointer-events", "none")
-        .attr({
-            'class': 'edgelabel',
-            //  'id':function(d,i){return 'edgelabel'+i},
-            'dx': 50,
-            'font-size': 10,
-            'fill': '#333'
-        })
-        .attr('dy', function (d, i) {
-            return 48 + 30 * i;
-        })
-        .append('textPath')
-        .attr('href', function (d, i) { return "property_" + i; })
-        .style("pointer-events", "none")
-        .text(function (d) {
-            // if(d.p == d.p1)
-            // return getName(d.p) + " " + d.count+" "+getName(d.p2)
-            // if(d.p == d.p2)
-            // return getName(d.p) + " " + d.count+" "+getName(d.p1)
-            var x = getName(d.p)
-            console.log(x)
-            // alert(x)
-            return x + " " + d.count;
-        });
+//     var series = [[{ time: 50, value: 50 }, { time: 250, value: 50 }], [{ time: 50, value: 80 }, { time: 250, value: 80 }]];
+//     var pline = d3.svg.line()
+//         .interpolate("linear")
+//         .x(function (d, i) {
+//             alert(i)
+//             return d.time;
+//         })
+//         .y(function (d, i) { return d.value; });
 
-}
+//     group = svg_.append("g");
+//     group.selectAll(".pline")
+//         .data(p_data)
+//         .enter().append("path")
+//         .attr("class", "pline")
+//         .attr("d", function (d, i) {
+//             var x1 = 50;
+//             var x2 = 250;
+//             var y = 50 + 30 * i;
+//             return "M " + x1 + " " + y + " L " + x2 + " " + y;
+//         })
+//         .attr('marker-end', function (d) {
+//             if (d.c1 == left)// || d.inverse!=null) 
+//                 return 'url(#endarrowhead)';
+//         })
+//         .attr('marker-start', function (d) {
+//             if (d.c2 == left)// || d.inverse!=null)
+//                 return 'url(#arrowhead)';
+
+//         })
+//         .attr('id', function (d, i) { return "property_" + i; })
+
+
+//     group.selectAll(".edgelabel").data(p_data)
+//         .enter()
+//         .append('text')
+//         .style("pointer-events", "none")
+//         .attr({
+//             'class': 'edgelabel',
+//             //  'id':function(d,i){return 'edgelabel'+i},
+//             'dx': 50,
+//             'font-size': 10,
+//             'fill': '#333'
+//         })
+//         .attr('dy', function (d, i) {
+//             return 48 + 30 * i;
+//         })
+//         .append('textPath')
+//         .attr('href', function (d, i) { return "property_" + i; })
+//         .style("pointer-events", "none")
+//         .text(function (d) {
+//             // if(d.p == d.p1)
+//             // return getName(d.p) + " " + d.count+" "+getName(d.p2)
+//             // if(d.p == d.p2)
+//             // return getName(d.p) + " " + d.count+" "+getName(d.p1)
+//             var x = getName(d.p)
+//             console.log(x)
+//             // alert(x)
+//             return x + " " + d.count;
+//         });
+
+// }
 
 function loadProperty(p) {
     $.ajax({
@@ -970,7 +993,8 @@ function loadProperty(p) {
     }).done(function (json) {
         $("#facet_property *").remove();
         $.each(json, function (key, d) {
-            $("#facet_property").append("<div><lable for='proeprty_" + key + "'><input type='checkbox' name='propertylist' value='" + d + "' id='proeprty_" + key + "'/>" + getName(d) + "</label> </div>");
+            $("#facet_property").append("<div><label for='proeprty_" + key + "' class='radio_container'><input type='radio'  name='propertylist' value='" + d + "' id='proeprty_" + key + "'/>" + getName(d) +
+             "<span class='radio_checkmark'></span></label> </div>");
         });
     });
 }
@@ -1081,7 +1105,10 @@ function instanceGraph(i) {
     }).done(function (json) {
         linkg_ = vis_.append("g");
         nodeg_ = vis_.append("g");
-        initInstanceGraph(json)
+        initInstanceGraph(json);
+        // $(window).scrollTop($('#instanceDiv').offset().top);
+        var body = $("html, body");
+        body.stop().animate({ scrollTop: $('#instanceDiv').offset().top }, 500, 'swing', function () { });
     });
 }
 
@@ -1125,7 +1152,7 @@ function initInstanceGraph(gdata) {
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width         
-            return (dr + 1) * 3 + 4;      
+            return (dr + 1) * 3 + 4;
         })
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -1263,6 +1290,29 @@ function instanceInfo(d) {
         });
         // $("#instanceInfo").show();
     });
+}
+
+function classDetail(c) {
+    $.ajax({
+        type: "POST",
+        url: apiurl + "query/class/detail",
+        data: {
+            's': c,
+            'database_name': database_name
+        }
+    }).done(function (data) {
+        if (data == '') {
+            $("#expandDivClass").hide(); return;
+        }
+        $("#expandDivClass").show();
+        $("#expandDivClass_content *").remove();
+        $("#class_name").html("<a href='" + c + "' class='result_link' target='_new'><img src='img/link.png'></a>" + getName(c));
+        $("#expandDivClass_content").append("<table><th>Datatype Property</th><th>Datatype</th></table>");
+        $(data).each(function () {
+            $("#expandDivClass table").append("<tr><td><a href='" + this.p + "' class='result_link' target='_new'><img src='img/link.png'></a>" + getName(this.p) + " - " + this.count + "</td><td>" + (this.datatype).join(",") + "</td></tr>");
+        });
+    });
+
 }
 
 $.extend(true, $.fn.dataTable.defaults, {
