@@ -11,7 +11,7 @@
   <script src="https://d3js.org/d3.v3.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-  
+
   <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
   <link rel="css/jquery-ui.css"></link>
   <link rel="css/customize.css"></link>
@@ -63,6 +63,11 @@
     .p_name {
       padding-left: 25px;
       text-align: center;
+      cursor: pointer;
+    }
+
+    .p_name:hover {
+      color: steelblue
     }
 
     .basicDimen {
@@ -103,6 +108,7 @@
       z-index: 1;
       max-height: 90%;
       padding: 10px;
+      overflow: hidden;
     }
 
     #expandDivProperty {
@@ -118,7 +124,7 @@
       border: 1px solid #ccc;
     }
 
-    #instanceDiv {}
+  
 
     .close_popup {
       position: absolute;
@@ -159,10 +165,11 @@
       padding-left: 10px;
       color: maroon;
       font-size: 9px;
+      float: right;
     }
 
     .nodeName {
-      color: maroon;
+      color: #000;
     }
 
     .nodeURI {
@@ -183,7 +190,7 @@
       text-transform: uppercase;
       padding: 7px 0;
       font-weight: bolder;
-      background: #242424;
+      background: steelblue;
       color: #fff;
       font-size: 13px;
     }
@@ -237,8 +244,11 @@
     #node_list>div {
       padding: 5px;
       cursor: pointer;
+      clear: both;
     }
-
+.resourceUri{
+  padding-top:5px; 
+}
 
     body {
       font: 10px sans-serif;
@@ -337,7 +347,6 @@
     .instanceLink {
       width: 12px;
       height: 15px;
-      margin-left: 10px;
     }
 
     circle.node.queryNode {
@@ -390,70 +399,75 @@
     #expandDivClass_content {
       margin-top: 10px;
     }
+
+    .btn.dropdown-toggle.btn-default
+    {
+      width: calc(100% - 20px)
+    }
   </style>
   <style>
-  .radio_container {
-    display: block;
-    position: relative;
-    padding-left: 35px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    font-size: 12px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+    .radio_container {
+      display: block;
+      position: relative;
+      padding-left: 35px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-size: 12px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    /* Hide the browser's default radio button */
 
-/* Hide the browser's default radio button */
-.radio_container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
+    .radio_container input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+    /* Create a custom radio button */
 
-/* Create a custom radio button */
-.radio_checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 20px;
-    width: 20px;
-    background-color: #eee;
-    border-radius: 50%;
-}
+    .radio_checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: #eee;
+      border-radius: 50%;
+    }
+    /* On mouse-over, add a grey background color */
 
-/* On mouse-over, add a grey background color */
-.radio_container:hover input ~ .radio_checkmark {
-    background-color: #ccc;
-}
+    .radio_container:hover input~.radio_checkmark {
+      background-color: #ccc;
+    }
+    /* When the radio button is checked, add a blue background */
 
-/* When the radio button is checked, add a blue background */
-.radio_container input:checked ~ .radio_checkmark {
-    background-color: #2196F3;
-}
+    .radio_container input:checked~.radio_checkmark {
+      background-color: steelblue;
+    }
+    /* Create the indicator (the dot/circle - hidden when not checked) */
 
-/* Create the indicator (the dot/circle - hidden when not checked) */
-.radio_checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
+    .radio_checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    /* Show the indicator (dot/circle) when checked */
 
-/* Show the indicator (dot/circle) when checked */
-.radio_container input:checked ~ .radio_checkmark:after {
-    display: block;
-}
+    .radio_container input:checked~.radio_checkmark:after {
+      display: block;
+    }
+    /* Style the indicator (dot/circle) */
 
-/* Style the indicator (dot/circle) */
-.radio_container .radio_checkmark:after {
- 	top: 6px;
-	left: 6px;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: white;
-}
+    .radio_container .radio_checkmark:after {
+      top: 6px;
+      left: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+    }
   </style>
   <style>
     /* The checkbox_container */
@@ -495,7 +509,7 @@
     /* When the checkbox is checked, add a blue background */
 
     .checkbox_container input:checked~.checkmark {
-      background-color: #2196F3;
+      background-color: steelblue;
     }
     /* Create the checkmark/indicator (hidden when not checked) */
 
@@ -530,7 +544,7 @@
   <div class="container-fluid">
 
     <div class="row">
-      <div class="col-lg-2 col-md-3" style="background:rgba(209, 209, 209, 0.2)">
+      <div class="col-lg-2 col-md-3" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
         <div class="myGrid accordion">
           <h3>
             <div class="gridTitle">Options</div>
@@ -548,7 +562,7 @@
               <option value="aseanlaw_k">aseanlaw_k</option>
             </select>
           </label>
-<br/><br/>
+            <br/><br/>
             <div>
               <label id="locknode_lbl" for="locknode" class="checkbox_container">Lock Nodes
               <input type="checkbox" id="locknode">
@@ -588,7 +602,7 @@
 
   <div id="expandDivProperty" class="container-fluid ui-widget-content">
     <div id="expandDivProperty_header">
-      <div id='close_popup_property' class="close_popup"><span class='glyphicon glyphicon-search'></span><img src="img/close.png" width="11"></div>
+      <div id='close_popup_property' class="close_popup"><span class='glyphicon glyphicon-remove'></span></div>
     </div>
     <div><label for='toggle_inverseof' class="checkbox_container">InverseOf Property
       <input id='toggle_inverseof' type='checkbox' name='vehicle' value='1'> <span class="checkmark"></span>
@@ -603,7 +617,7 @@
   <div id="expandDivClass" class="container-fluid ui-widget-content">
     <div id="expandDivClass_header">
       <div id="class_name"></div>
-      <div id='close_popup_class' class="close_popup"><span class='glyphicon glyphicon-search'></span><img src="img/close.png" width="11"></div>
+      <div id='close_popup_class' class="close_popup"><span class='glyphicon glyphicon-remove'></span></div>
     </div>
     <div id="expandDivClass_content"></div>
   </div>
