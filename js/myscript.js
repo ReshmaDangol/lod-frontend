@@ -72,9 +72,9 @@ $(document).ready(function () {
         $("#expandDivProperty").hide();
         database_name = $("#dataset_name").val();
         loadClass();
+        $("#toggle_all_select").prop("checked",false);
         $(".accordion").accordion("activate", 1);
-        $("#toggle_all_select").prop("checked","")
-
+        
     });
     $("#locknode").on("change", function () {
         $(".fixed").removeClass("fixed");
@@ -131,7 +131,7 @@ $(document).ready(function () {
         else
         {
             removeNode(node);
-            $("#toggle_all_select").prop("checked","") 
+            $("#toggle_all_select").prop("checked",false) 
         }
 
         $(this).toggleClass("addedNode");
