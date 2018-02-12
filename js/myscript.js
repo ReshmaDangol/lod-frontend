@@ -42,6 +42,82 @@ function checkInverseOfToggle() {
 }
 $(document).ready(function () {
 
+    $('#paginator').bootpag({
+        total: 20,
+        page: 1,
+        maxVisible :5
+    }).on('page', function (event, num) {
+        if (typeof num == "undefined") num = 1
+        // $(".content2").html("Page " + num); // or some ajax content loading...        
+        document.body.style.cursor = 'wait';
+        console.log("before ajax")
+        $.ajax({
+            type: "POST",
+            url: apiurl + "query",
+            data: {
+                's': query_node_subject,
+                'p': query_node_property,
+                't': query_node_object,
+                'p_filter': JSON.stringify(query_property_filter),
+                'database_name': database_name,
+                'limit': 10,
+                'offset': (num-1) * 10
+            }
+        }).done(function (json) {
+            console.log("ajax call")
+            $("#resultTable tbody").html("");
+            $.each(json["data"], function (key, d) {
+                // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
+                $("#resultTable tbody").append(
+                    function () {
+                        if (typeof d.o === 'undefined' || !d.o) {
+                            $("#resultTable thead tr").html("<td>Subject</td>")
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.s.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                        else if (typeof d.p === 'undefined' || !d.p) {
+                            $("#resultTable thead tr").html("<td>Subject</td><td>Object</td>");
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.s.value) +
+                                "</td>" +
+                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
+                                "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.o.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                        else {
+                            $("#resultTable thead tr").html("<td>Subject</td><td>Predicate</td><td>Object</td>");
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.s.value)
+                                + "</td>" +
+                                "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
+                                "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                "</td>" +
+                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
+                                isUrl(d.o.value) +
+                                isValidInput(d.o.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                    })
+            });
+            // $('#resultTable').DataTable({ "destroy": true });
+            var body = $("html, body");
+            document.body.style.cursor = 'default';
+            body.stop().animate({ scrollTop: $('#queryResult').offset().top }, 500, 'swing', function () { });
+        });
+
+        // $(this).bootpag({ total: 10 });
+    });
 
     $("#toggle_all_select").on("change", function () {
         if ($("#toggle_all_select").prop("checked")) {          
@@ -1081,7 +1157,8 @@ function htmlDecode(html) {
 }
 
 function query() {
-    $("#queryResult").show()
+    $("#queryResult").show();
+    $('#paginator').trigger('page');
     // $('#resultTable thead tr').html("<th>Name</th><th>Position</th><th>Office</th>");
     // $('#resultTable').DataTable({
     //   "ajax": {
@@ -1104,82 +1181,8 @@ function query() {
     //   "destroy": true
     // });
 
-    $('#paginator').bootpag({
-        total: 20,
-        page: 1,
-        maxVisible :5
-    }).on('page', function (event, num) {
-        if (typeof num == "undefined") num = 1
-        // $(".content2").html("Page " + num); // or some ajax content loading...        
-        document.body.style.cursor = 'wait';
-        $.ajax({
-            type: "POST",
-            url: apiurl + "query",
-            data: {
-                's': query_node_subject,
-                'p': query_node_property,
-                't': query_node_object,
-                'p_filter': JSON.stringify(query_property_filter),
-                'database_name': database_name,
-                'limit': 10,
-                'offset': (num-1) * 10
-            }
-        }).done(function (json) {
-            console.log(json)
-            $("#resultTable tbody").html("");
-            $.each(json["data"], function (key, d) {
-                // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
-                $("#resultTable tbody").append(
-                    function () {
-                        if (typeof d.o === 'undefined' || !d.o) {
-                            $("#resultTable thead tr").html("<td>Subject</td>")
-                            return "<tr>" +
-                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
-                                isValidInput(d.s.value) +
-                                "</td>" +
-                                "</tr>";
-                        }
-                        else if (typeof d.p === 'undefined' || !d.p) {
-                            $("#resultTable thead tr").html("<td>Subject</td><td>Object</td>");
-                            return "<tr>" +
-                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
-                                isValidInput(d.s.value) +
-                                "</td>" +
-                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
-                                "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
-                                isValidInput(d.o.value) +
-                                "</td>" +
-                                "</tr>";
-                        }
-                        else {
-                            $("#resultTable thead tr").html("<td>Subject</td><td>Predicate</td><td>Object</td>");
-                            return "<tr>" +
-                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                                "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
-                                isValidInput(d.s.value)
-                                + "</td>" +
-                                "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
-                                "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
-                                "</td>" +
-                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
-                                isUrl(d.o.value) +
-                                isValidInput(d.o.value) +
-                                "</td>" +
-                                "</tr>";
-                        }
-                    })
-            });
-            // $('#resultTable').DataTable({ "destroy": true });
-            var body = $("html, body");
-            document.body.style.cursor = 'default';
-            body.stop().animate({ scrollTop: $('#queryResult').offset().top }, 500, 'swing', function () { });
-        });
-
-        // $(this).bootpag({ total: 10 });
-    });
-    $('#paginator').trigger('page')
+  
+ 
 }
 function isValidInput(input) {
     if (input.indexOf("http://") == 0 || input.indexOf("https://") == 0) return "<span class='instanceLink glyphicon glyphicon-search' onclick='instanceGraph(\"" + input + "\")'></span>";
