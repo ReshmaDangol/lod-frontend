@@ -124,7 +124,7 @@
       border: 1px solid #ccc;
     }
 
-  
+
 
     .close_popup {
       position: absolute;
@@ -158,7 +158,7 @@
     }
 
     .thicklink:hover {
-      stroke: rgba(0, 0, 0, 0.5);
+      stroke: rgba(252, 0, 0, 0.4);
     }
 
     .nodeCount {
@@ -193,6 +193,7 @@
       background: steelblue;
       color: #fff;
       font-size: 13px;
+      margin-bottom: 10px;
     }
 
     .addedNode {
@@ -205,9 +206,9 @@
       color: #000;
     }
 
-    svg {
+    /* svg {
       border: 1px solid #ccc;
-    }
+    } */
 
     body {
       font: 10px sans-serif;
@@ -218,6 +219,7 @@
       fill: lightsteelblue;
       stroke: #000;
       min-width: 30px;
+      cursor: pointer !important;
     }
     /* circle.leaf {
       stroke: #fff;
@@ -246,9 +248,10 @@
       cursor: pointer;
       clear: both;
     }
-.resourceUri{
-  padding-top:5px; 
-}
+
+    .resourceUri {
+      padding-top: 5px;
+    }
 
     body {
       font: 10px sans-serif;
@@ -400,9 +403,24 @@
       margin-top: 10px;
     }
 
-    .btn.dropdown-toggle.btn-default
-    {
+    .btn.dropdown-toggle.btn-default {
       width: calc(100% - 20px)
+    }
+#instanceInfo
+    {
+    overflow-y: scroll;
+    padding: 10px;
+    border-left: 1px solid #ccc; 
+    }
+    #instanceGraph
+    {
+      padding: 0;
+    }
+    thead td {
+    padding: 10px !important;
+    background: #999;
+    color: #fff;
+    font-size: 15px;
     }
   </style>
   <style>
@@ -433,7 +451,7 @@
       left: 0;
       height: 20px;
       width: 20px;
-      background-color: #eee;
+      background-color: #ccc;
       border-radius: 50%;
     }
     /* On mouse-over, add a grey background color */
@@ -536,15 +554,19 @@
       -ms-transform: rotate(45deg);
       transform: rotate(45deg);
     }
+    #queryResult
+    {
+      background: rgba(209, 209, 209, 0.2);
+    }
   </style>
 </head>
 
 <body>
 
-  <div class="container-fluid">
+  <div class="container-fluid" style="border-bottom:1px solid #ccc">
 
     <div class="row">
-      <div class="col-lg-2 col-md-3" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
+      <div class="col-lg-2 col-md-3  col-sm-4 col-xs-4" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
         <div class="myGrid accordion">
           <h3>
             <div class="gridTitle">Options</div>
@@ -560,6 +582,12 @@
               <option value="jamendo">jamendo</option>
               <option value="tpqi_k">tpqi_k</option>
               <option value="aseanlaw_k">aseanlaw_k</option>
+              <option value="agriculture">agriculture</option>
+              <option value="education">Educational Program</option>
+              <option value="imagesnippets">imagesnippets</option>
+              <option value="asean_law_SL">asean_law_SL</option>
+              <!-- <option value="drugbank">drugbank</option Too simple> -->
+              
             </select>
           </label>
             <br/><br/>
@@ -593,7 +621,7 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-10 col-md-9" id="graphContainer">
+      <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
 
       </div>
     </div>
@@ -625,27 +653,27 @@
 
   <div class="container-fluid">
     <div class="row" id="instanceDiv">
-      <div id="instanceGraph" class="col-lg-9">
+      <div id="instanceGraph" class="col-lg-9 col-xs-8">
       </div>
-      <div id="instanceInfo" class="col-lg-3"></div>
+      <div id="instanceInfo" class="col-lg-3 col-xs-4"><table  width="100%" cellspacing="0" class="table table-striped">
+        <thead><tr><td></td></tr></thead>
+        <tbody></tbody></table></div>
     </div>
 
-    <div class="row">
-      <div class="col-lg-2">
-        <div class="gridTitle">Properties </div>
+    <div class="row" id="queryResult" style="display:none">
+      <div class="col-lg-2 col-xs-4">
+        <div class="gridTitle" >Properties </div>
         <div id="selected_class_name"></div>
         <div id="facet_property_tite">
         </div>
         <div id="facet_property">
         </div>
       </div>
-      <div class="col-lg-10">
-        <table id="resultTable" width="100%" cellspacing="0">
+      <div class="col-lg-10 col-xs-8" style="background: #fff;">
+        <table id="resultTable" width="100%" cellspacing="0" class="table table-striped">
           <thead>
             <tr>
-              <td>Subject</td>
-              <td>Predicate</td>
-              <td>Object</td>
+                          
             </tr>
           </thead>
           <tbody></tbody>
@@ -653,11 +681,16 @@
       </div>
     </div>
   </div>
+<center><div id="paginator"></div></center>
 
 </body>
+
+
+<script src="js/bootpag.js"></script>
+
+<script src="js/myscript.js"></script>
 <script type="text/javascript">
 
 </script>
-<script src="js/myscript.js"></script>
 
 </html>

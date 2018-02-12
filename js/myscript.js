@@ -29,13 +29,11 @@ var link_intersection = true;
 var link_property = true;
 var query_node_subject = '', query_node_object = '', query_node_property = '', query_property_filter = '';
 var database_name = '';
-var classlist_arr=[];
-function beautifyNumber(num)
-{
+var classlist_arr = [];
+function beautifyNumber(num) {
     return (new Intl.NumberFormat().format(num));
 }
-function checkInverseOfToggle()
-{
+function checkInverseOfToggle() {
     if ($("#toggle_inverseof").prop("checked")) {
         $(".inverselist").show(100);
     }
@@ -141,14 +139,14 @@ function loadClass() {
                 "<span class='nodeName'>" + this.name + "</span>" +
                 "<span class='nodeCount'>" + beautifyNumber(this.count) + "</span></div>");
             vocab_temp.push(getUri(this.class))
-            
+
         });
         var vocab = [];
-        $.each(vocab_temp, function(i, el){
-            if($.inArray(el, vocab) === -1) vocab.push(el);
+        $.each(vocab_temp, function (i, el) {
+            if ($.inArray(el, vocab) === -1) vocab.push(el);
         });
         console.log(vocab);
-        if(height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
+        if (height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
     });
 
 }
@@ -175,7 +173,7 @@ var width = $("#graphContainer").width(),     // svg width
 var height = $(window).height() * 0.7
 
 
-    var curve = d3.svg.line()
+var curve = d3.svg.line()
     .interpolate("cardinal-closed")
     .tension(.85);
 
@@ -471,7 +469,7 @@ function init() {
         })
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-        .attr('fill', '#999')
+        .attr('fill', '#000')
         .style('stroke', 'none')
 
 
@@ -752,6 +750,9 @@ function connectedNodes() {
         return;
     }
 
+    if (d3.select("#expandDivClass").style("left") == "auto")
+        d3.select("#expandDivClass").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
+
     var check = $(this).hasClass("selectedNode");
     if (!check) {
         $(".selectedNode").removeClass("selectedNode");
@@ -823,9 +824,7 @@ function expandLink() {
     var source = d.source.class;//nodes[0].class;
     var target = d.target.class;//nodes[0].class;
     var bidirection = d.bidirection;
-    d3.select("#expandDivProperty")
-        .style("left", d3.event.x + 150 + "px")
-        .style("top", d3.event.y / 2 + "px");
+    if (d3.select("#expandDivProperty").style("left") == "auto") d3.select("#expandDivProperty").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
     $.ajax({
         type: "POST",
         url: apiurl + "property",
@@ -849,8 +848,8 @@ function getName(uri) {
 function getUri(uri) {
     var checkHash = uri.split("#")
     if (checkHash.length > 1)
-        return checkHash[0]+"#"        
-    return uri.substring(0,uri.lastIndexOf("/"));
+        return checkHash[0] + "#"
+    return uri.substring(0, uri.lastIndexOf("/"));
 }
 
 function cssPropertyInfo(left, right) {
@@ -865,7 +864,11 @@ function cssPropertyInfo(left, right) {
 
     jQuery.each(p_data, function (i, d) {
         $("#expandDivProperty_content").append("<div class='row propertylist'>" +
-            "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" + getName(d["p"]) + " - " + beautifyNumber(d["count"]) + "</div>" +
+            "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" +
+            (d["max_cardinality"] > 1 ? "1..*" : "1..1") + " " +
+            getName(d["p"]) + " - " +
+            beautifyNumber(d["count"]) +
+            "</div>" +
             "<div class='col-lg-12 link'><div class='arrowline'></div><article class='basicDimen " +
             (d["c1"] == left ? "rightArrow" : "leftArrow")
             + "'></article></div>" +
@@ -877,6 +880,10 @@ function cssPropertyInfo(left, right) {
             return (a.count_ < b.count_);
         });
 
+        temp = temp.sort(function (a, b) {
+            return a.p.indexOf(getUri(d["p"])) !== -1;
+        });
+
         if (d["inverse"].length > 0)
             $("#inverselist" + i).append("<div class='col-lg-12'><div class='inverseof_title'>InverseOf" +
                 "<div class='arrowline'></div><article class='basicDimen " +
@@ -884,8 +891,10 @@ function cssPropertyInfo(left, right) {
                 + "'></article></div></div></div>"
             );
         $.each(temp, function (j, val) {
-            if (j > 5 || val["count_"] == 0) return;
-            $("#inverselist" + i).append("<div class='col-lg-12 p_name' onclick='queryProperty(\"" + d["c2"] + "\",\"" + val["p"] + "\",\"" + d["c1"] + "\")'>" + getName(val["p"]) + " - " + beautifyNumber(val["count_"]) + "</div>"
+            if (j > 0 || val["count_"] == 0) return;
+            $("#inverselist" + i).append("<div class='col-lg-12 p_name' onclick='queryProperty(\"" + d["c2"] + "\",\"" + val["p"] + "\",\"" + d["c1"] + "\")'>" +
+                getName(val["p"])
+                + " - " + beautifyNumber(val["count_"]) + "</div>"
             );
         });
     });
@@ -1013,6 +1022,7 @@ function queryProperty(s, p, o) {
 // }
 
 function loadProperty(p) {
+    $("#queryResult").show()
     $.ajax({
         type: "POST",
         url: apiurl + "query/propertylist",
@@ -1023,7 +1033,8 @@ function loadProperty(p) {
     }).done(function (json) {
         $("#facet_property *").remove();
         $.each(json, function (key, d) {
-            $("#facet_property").append("<div><label for='proeprty_" + key + "' class='radio_container'><input type='radio'  name='propertylist' value='" + d + "' id='proeprty_" + key + "'/>" + getName(d) +
+            $("#facet_property").append("<div><label for='proeprty_" + key + "' class='radio_container'>" +
+                "<input type='radio'  name='propertylist' value='" + d.p.value + "' id='proeprty_" + key + "'/>" + getName(d.p.value) +
                 "<span class='radio_checkmark'></span></label> </div>");
         });
     });
@@ -1049,6 +1060,9 @@ function htmlDecode(html) {
 }
 
 function query() {
+
+    // $('#resultTable thead tr').html("<th>Name</th><th>Position</th><th>Office</th>");
+
     // $('#resultTable').DataTable({
     //   "ajax": {
     //       type: "POST",
@@ -1056,7 +1070,10 @@ function query() {
     //       data: {
     //         's': query_node_subject,
     //         'p': query_node_property,
-    //         't': query_node_object
+    //         't': query_node_object,
+    //         'p_filter': JSON.stringify(query_property_filter),
+    //         'database_name': database_name
+
     //       }
     //     },
     //   "columns": [
@@ -1066,59 +1083,87 @@ function query() {
     //   ],
     //   "destroy": true
     // });
-    $.ajax({
-        type: "POST",
-        url: apiurl + "query",
-        data: {
-            's': query_node_subject,
-            'p': query_node_property,
-            't': query_node_object,
-            'p_filter': JSON.stringify(query_property_filter),
-            'database_name': database_name
-        }
-    }).done(function (json) {
-        console.log(json)
-        $("#resultTable tbody").html("");
-        $.each(json["data"], function (key, d) {
-            // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
-            $("#resultTable tbody").append(
-                function () {
-                    if (typeof d.o === 'undefined' || !d.o)
-                        return "<tr>" +
-                            "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                            "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'>"+
-                            isValidInput(d.s.value)+     
-                            "</td>" +
-                            "</tr>";
-                    else if (typeof d.p === 'undefined' || !d.p)
-                        return "<tr>" +
-                            "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) + 
-                            "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>"+
-                            isValidInput(d.s.value)+     
-                            "</td>" +
-                            "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) + 
-                            "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>"+
-                            isValidInput(d.o.value)+     
-                            "</td>" +
-                            "</tr>";
-                    else
-                        return "<tr>" +
-                            "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                            "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
-                            isValidInput(d.s.value)
-                            + "</td>" +
-                            "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
-                            "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>"+                            
-                            "</td>" +
-                            "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
-                            isUrl(d.o.value) +
-                            isValidInput(d.o.value)+                            
-                            "</td>" +
-                        "</tr>";
-                })
+
+    $('#paginator').bootpag({
+        total: 20,
+        page: 1,
+        maxVisible :5
+    }).on('page', function (event, num) {
+        if (typeof num == "undefined") num = 1
+        // $(".content2").html("Page " + num); // or some ajax content loading...
+
+        document.body.style.cursor = 'wait';
+        $.ajax({
+            type: "POST",
+            url: apiurl + "query",
+            data: {
+                's': query_node_subject,
+                'p': query_node_property,
+                't': query_node_object,
+                'p_filter': JSON.stringify(query_property_filter),
+                'database_name': database_name,
+                'limit': 10,
+                'offset': num * 10
+            }
+        }).done(function (json) {
+            console.log(json)
+            $("#resultTable tbody").html("");
+            $.each(json["data"], function (key, d) {
+                // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
+
+
+
+                $("#resultTable tbody").append(
+                    function () {
+                        if (typeof d.o === 'undefined' || !d.o) {
+                            $("#resultTable thead tr").html("<td>Subject</td>")
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'>" +
+                                isValidInput(d.s.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                        else if (typeof d.p === 'undefined' || !d.p) {
+                            $("#resultTable thead tr").html("<td>Subject</td><td>Object</td>");
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.s.value) +
+                                "</td>" +
+                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
+                                "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.o.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                        else {
+                            $("#resultTable thead tr").html("<td>Subject</td><td>Predicate</td><td>Object</td>");
+                            return "<tr>" +
+                                "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
+                                "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isValidInput(d.s.value)
+                                + "</td>" +
+                                "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
+                                "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                "</td>" +
+                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
+                                isUrl(d.o.value) +
+                                isValidInput(d.o.value) +
+                                "</td>" +
+                                "</tr>";
+                        }
+                    })
+            });
+            // $('#resultTable').DataTable({ "destroy": true });
+            var body = $("html, body");
+            document.body.style.cursor = 'default';
+            body.stop().animate({ scrollTop: $('#queryResult').offset().top }, 500, 'swing', function () { });
         });
-        // $('#resultTable').DataTable({ "destroy": true });
+
+        // $(this).bootpag({ total: 10 });
     });
+    $('#paginator').trigger('page')
 }
 function isValidInput(input) {
     if (input.indexOf("http://") == 0 || input.indexOf("https://") == 0) return "<span class='instanceLink glyphicon glyphicon-search' onclick='instanceGraph(\"" + input + "\")'></span>";
@@ -1135,6 +1180,7 @@ function instanceGraph(i) {
     vis_.attr("width", $("#instanceGraph").width())
         .attr("height", 700);
 
+    $("#instanceInfo").height(680);//20px padding
     $.ajax({
         type: "POST",
         url: apiurl + "query/instance/propertylist",
@@ -1195,7 +1241,7 @@ function initInstanceGraph(gdata) {
         })
         .append('svg:path')
         .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-        .attr('fill', '#999')
+        .attr('fill', '#000')
         .style('stroke', 'none')
 
 
@@ -1280,11 +1326,11 @@ function initInstanceGraph(gdata) {
                     var bbox = this.getBBox();
                     rx = bbox.x + bbox.width / 2;
                     ry = bbox.y + bbox.height / 2;
-                    return 'rotate(180 ' + rx + ' ' + ry + ')';    
+                    return 'rotate(180 ' + rx + ' ' + ry + ')';
                 } catch (e) {
                     console.log(e);
                 }
-                
+
             }
             else {
                 return 'rotate(0)';
@@ -1322,14 +1368,15 @@ function instanceInfo(d) {
             'database_name': database_name
         }
     }).done(function (json) {
-        $("#instanceInfo *").remove();
+        $("#instanceInfo tbody *").remove();
+        $("#instanceInfo thead td").html(d.node);
         $.each(json, function (key, d) {
-            $("#instanceInfo").append(
-                "<div class=''>" +
+            $("#instanceInfo tbody").append(
+                "<tr><td>" +
                 htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
                 isUrl(d.o.value) +
                 isValidInput(d.o.value) +
-                "</div>"
+                "</td></tr>"
             )
         });
         // $("#instanceInfo").show();
@@ -1350,11 +1397,11 @@ function classDetail(c) {
         }
         $("#expandDivClass").show();
         $("#expandDivClass_content *").remove();
-        $("#class_name").html(getName(c) +" - "+ classlist_arr[c]);
-        $("#expandDivClass_content").append("<div class='resourceUri'><a href='" + c + "' class='result_link' target='_new'>"+c+"</a></div>");
+        $("#class_name").html(getName(c) + " - " + classlist_arr[c]);
+        $("#expandDivClass_content").append("<div class='resourceUri'><a href='" + c + "' class='result_link' target='_new'>" + c + "</a></div>");
         $("#expandDivClass_content").append("<table><th>Datatype Property</th><th>Datatype</th></table>");
         $(data).each(function () {
-            $("#expandDivClass table").append("<tr><td><a href='" + this.p + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" + getName(this.p) + " - " +  beautifyNumber(this.count) + "</td><td>" + (this.datatype).join(",") + "</td></tr>");
+            $("#expandDivClass table").append("<tr><td><a href='" + this.p + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" + getName(this.p) + " - " + beautifyNumber(this.count) + "</td><td>" + (this.datatype).join(",") + "</td></tr>");
         });
     });
 
