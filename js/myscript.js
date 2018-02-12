@@ -42,6 +42,22 @@ function checkInverseOfToggle() {
 }
 $(document).ready(function () {
 
+
+    $("#toggle_all_select").on("change", function () {
+        if ($("#toggle_all_select").prop("checked")) {          
+            $(".nodeList").each(function () {
+                var node = $(this).attr("data-uri");
+                if ($.inArray(node, userSelection) == -1) {
+                    addNode(node);
+                }            
+        
+                $(this).addClass("addedNode");                
+            })
+            loadGraph(userSelection);
+        }      
+        
+    });
+
     $("#toggle_inverseof").on("click", function () {
         checkInverseOfToggle();
     });
@@ -57,6 +73,8 @@ $(document).ready(function () {
         database_name = $("#dataset_name").val();
         loadClass();
         $(".accordion").accordion("activate", 1);
+        $("#toggle_all_select").prop("checked","")
+
     });
     $("#locknode").on("change", function () {
         $(".fixed").removeClass("fixed");
@@ -111,7 +129,10 @@ $(document).ready(function () {
             addNode(node);
         }
         else
+        {
             removeNode(node);
+            $("#toggle_all_select").prop("checked","") 
+        }
 
         $(this).toggleClass("addedNode");
         loadGraph(userSelection);
@@ -1022,7 +1043,7 @@ function queryProperty(s, p, o) {
 // }
 
 function loadProperty(p) {
-    $("#queryResult").show()
+    
     $.ajax({
         type: "POST",
         url: apiurl + "query/propertylist",
@@ -1041,7 +1062,6 @@ function loadProperty(p) {
 }
 
 function querySubject(s) {
-
     var temp = s.split("~~~")
     if (temp.length > 1) {
         query_node_subject = temp[0];
@@ -1055,14 +1075,14 @@ function querySubject(s) {
     query_node_property = '';
     query();
 }
+
 function htmlDecode(html) {
     return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function query() {
-
+    $("#queryResult").show()
     // $('#resultTable thead tr').html("<th>Name</th><th>Position</th><th>Office</th>");
-
     // $('#resultTable').DataTable({
     //   "ajax": {
     //       type: "POST",
@@ -1090,8 +1110,7 @@ function query() {
         maxVisible :5
     }).on('page', function (event, num) {
         if (typeof num == "undefined") num = 1
-        // $(".content2").html("Page " + num); // or some ajax content loading...
-
+        // $(".content2").html("Page " + num); // or some ajax content loading...        
         document.body.style.cursor = 'wait';
         $.ajax({
             type: "POST",
@@ -1103,23 +1122,20 @@ function query() {
                 'p_filter': JSON.stringify(query_property_filter),
                 'database_name': database_name,
                 'limit': 10,
-                'offset': num * 10
+                'offset': (num-1) * 10
             }
         }).done(function (json) {
             console.log(json)
             $("#resultTable tbody").html("");
             $.each(json["data"], function (key, d) {
                 // console.log(htmlDecode(d.s_label.value),"--",d.s_label.value )
-
-
-
                 $("#resultTable tbody").append(
                     function () {
                         if (typeof d.o === 'undefined' || !d.o) {
                             $("#resultTable thead tr").html("<td>Subject</td>")
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
-                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'>" +
+                                "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
                                 isValidInput(d.s.value) +
                                 "</td>" +
                                 "</tr>";

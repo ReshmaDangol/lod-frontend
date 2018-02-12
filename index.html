@@ -205,7 +205,6 @@
     .addedNode>* {
       color: #000;
     }
-
     /* svg {
       border: 1px solid #ccc;
     } */
@@ -406,21 +405,22 @@
     .btn.dropdown-toggle.btn-default {
       width: calc(100% - 20px)
     }
-#instanceInfo
-    {
-    overflow-y: scroll;
-    padding: 10px;
-    border-left: 1px solid #ccc; 
+
+    #instanceInfo {
+      overflow-y: scroll;
+      padding: 10px;
+      border-left: 1px solid #ccc;
     }
-    #instanceGraph
-    {
+
+    #instanceGraph {
       padding: 0;
     }
+
     thead td {
-    padding: 10px !important;
-    background: #999;
-    color: #fff;
-    font-size: 15px;
+      padding: 10px !important;
+      background: #999;
+      color: #fff;
+      font-size: 15px;
     }
   </style>
   <style>
@@ -554,8 +554,8 @@
       -ms-transform: rotate(45deg);
       transform: rotate(45deg);
     }
-    #queryResult
-    {
+
+    #queryResult {
       background: rgba(209, 209, 209, 0.2);
     }
   </style>
@@ -576,16 +576,17 @@
           <div>
             <label for="dataset_name">Dataset: <select id="dataset_name" name="dataset_name"  class="selectpicker" placeholder="Select Dataset">
               <option></option>
-              <option value="archiveshub">archiveshub</option>
-              <option value="aat">aat</option>
-              <option value="linkedmdb">linkedmdb</option>
-              <option value="jamendo">jamendo</option>
-              <option value="tpqi_k">tpqi_k</option>
-              <option value="aseanlaw_k">aseanlaw_k</option>
-              <option value="agriculture">agriculture</option>
+              <option value="archiveshub">Archiveshub</option>              
+              <option value="linkedmdb">LinkedMDB</option>
               <option value="education">Educational Program</option>
-              <option value="imagesnippets">imagesnippets</option>
-              <option value="asean_law_SL">asean_law_SL</option>
+              <option value="asean_law_SL">Asean Law</option>
+              <!-- <option value="jamendo">jamendo</option> -->
+              <option value="aat">aat</option>
+              <!-- <option value="tpqi_k">tpqi_k</option> -->
+              <!-- <option value="aseanlaw_k">aseanlaw_k</option> -->
+              <!-- <option value="agriculture">agriculture</option> -->
+              <!-- <option value="imagesnippets">imagesnippets</option> -->
+              
               <!-- <option value="drugbank">drugbank</option Too simple> -->
               
             </select>
@@ -617,12 +618,18 @@
           <h3>
             <div class="gridTitle">Classes</div>
           </h3>
+          <div>
+            <label id="toggle_all_select_" for="toggle_all_select" class="checkbox_container">All
+            <input type="checkbox" id="toggle_all_select">
+            <span class="checkmark"></span>
+          </label>
+          
           <div id="node_list">
           </div>
         </div>
+        </div>
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
-
       </div>
     </div>
   </div>
@@ -655,14 +662,21 @@
     <div class="row" id="instanceDiv">
       <div id="instanceGraph" class="col-lg-9 col-xs-8">
       </div>
-      <div id="instanceInfo" class="col-lg-3 col-xs-4"><table  width="100%" cellspacing="0" class="table table-striped">
-        <thead><tr><td></td></tr></thead>
-        <tbody></tbody></table></div>
+      <div id="instanceInfo" class="col-lg-3 col-xs-4">
+        <table width="100%" cellspacing="0" class="table table-striped">
+          <thead>
+            <tr>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="row" id="queryResult" style="display:none">
       <div class="col-lg-2 col-xs-4">
-        <div class="gridTitle" >Properties </div>
+        <div class="gridTitle">Properties </div>
         <div id="selected_class_name"></div>
         <div id="facet_property_tite">
         </div>
@@ -673,15 +687,18 @@
         <table id="resultTable" width="100%" cellspacing="0" class="table table-striped">
           <thead>
             <tr>
-                          
+
             </tr>
           </thead>
           <tbody></tbody>
         </table>
+        <center>
+          <div id="paginator"></div>
+        </center>
       </div>
     </div>
   </div>
-<center><div id="paginator"></div></center>
+
 
 </body>
 
