@@ -99,13 +99,13 @@ $(document).ready(function () {
                                 "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
                                 isValidInput(d.s.value)
                                 + "</td>" +
-                                "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
-                                "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
-                                "</td>" +
-                                "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
-                                isUrl(d.o.value) +
-                                isValidInput(d.o.value) +
-                                "</td>" +
+                                // "<td>" + htmlDecode(typeof d.p_label === 'undefined' ? (typeof d.p_name === 'undefined' ? d.p.value : d.p_name.value) : d.p_label.value) +
+                                // "<a href='" + d.p.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                // "</td>" +
+                                // "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
+                                // isUrl(d.o.value) +
+                                // isValidInput(d.o.value) +
+                                // "</td>" +
                                 "</tr>";
                         }
                     })
@@ -186,6 +186,13 @@ $(document).ready(function () {
         if ($(this).is(":checked"))
             link_subclass = true;
         else link_subclass = false;
+        loadGraph(userSelection);
+    });
+
+    $("#toggle_property").on("change", function () {
+        if ($(this).is(":checked"))
+            link_property = true;
+        else link_property = false;
         loadGraph(userSelection);
     });
 
@@ -630,9 +637,16 @@ function init() {
     }
     newnode.append("circle")
         .attr("class", function (d) {
-            circle_class = ''
+            var temp = d.class;
+            circle_class = '';
+            if(temp.indexOf("/rdf-schema") >=0){
+                circle_class = "rdfclass";
+            }
+            else if(temp.indexOf("/owl#") >=0){
+                circle_class = "owlclass";
+            }
             if (d.intersect == 1)
-                circle_class = 'class intersectionNode'
+                circle_class += ' class intersectionNode';
             return circle_class + " node" + (d.size ? "" : " leaf");
         })
         .attr("id", function (d) {
@@ -647,22 +661,42 @@ function init() {
         .style("cursor", function (d) {
             if (typeof expand[d.group] != "undefined" || expand[d.group] == true || d.size == 1) return "default";
             else return "pointer";
-
         })
-        // .style("fill", function (d) { return fill(d.group); })
+        .style("fill", function (d) {  
+            if (d.equivalent == 1 && !$(this).hasClass("leaf"))
+                return "#fff";      
+           
+        })
         .on("dblclick", equivalentClass)
         .on('click', connectedNodes);
 
 
     newnode.append("circle")
         .attr("class", function (d) {
-            return "node" + (d.size ? "" : " leaf");
+            var temp = d.class;
+            circle_class = '';
+            if(temp.indexOf("/rdf-schema") >=0){
+                circle_class = "rdfclass";
+            }
+            else if(temp.indexOf("/owl#") >=0){
+                circle_class = "owlclass";
+            }
+            return circle_class + " node" + (d.size ? "" : " leaf");
         })
         .attr("r", function (d) {
             // return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
             return (dr + 1) * 3;
         })
-        // .style("fill", function (d) { return fill(d.group); })
+        // .style("fill", function (d) { 
+        //     var temp = d.class
+        //     if(temp.indexOf("/rdf-schema#") >=0){
+        //         return fill("#c9c");
+        //     }
+        //     if(temp.indexOf("/owl#") >=0){
+        //         return fill("#acf");
+        //     }
+        //     // return fill("#cc99cc");
+        //  })
         .on("dblclick", equivalentClass)
         .attr("display", function (d) {
             if (d.equivalent == 1 && !$(this).hasClass("leaf"))
@@ -697,7 +731,18 @@ function init() {
         .attr("class", "nofill set_path")
         .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
 
-    newnode.append("text").attr("class", "node_label")
+    newnode.append("text").attr("class", function (d) {
+        var temp = d.class;
+        circle_class = '';
+        if(temp.indexOf("/rdf-schema") >=0){
+            circle_class = "rdfclasstext";
+        }
+        else if(temp.indexOf("/owl#") >=0){
+            circle_class = "owlclasstext";
+        }
+        
+        return circle_class + "node_label";
+    })
         .text(function (d) {
             return d.name
         }).attr("pointer-events", "none").attr("text-anchor", "middle")
@@ -1146,7 +1191,7 @@ function querySubject(s) {
     else {
         query_node_subject = s;
         query_node_object = '';
-        loadProperty();
+        // loadProperty();
     }
     query_node_property = '';
     query();
