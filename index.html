@@ -133,6 +133,7 @@
       padding: 5px;
       cursor: pointer;
       opacity: 0.9;
+      z-index: 1;
     }
 
     .inverselist {
@@ -176,9 +177,6 @@
       font-size: 9px;
     }
 
-    .selectedNode {
-      fill: red !important;
-    }
 
     .myGrid {
       border-top: 1px solid #ccc;
@@ -194,6 +192,7 @@
       color: #fff;
       font-size: 13px;
       margin-bottom: 10px;
+      cursor: pointer;
     }
 
     .addedNode {
@@ -236,7 +235,7 @@
     }
 
     .node_label {
-      fill: #fff;
+      fill: #000;
       font: 12px sans-serif;
       /* pointer-events: none; */
       stroke: none;
@@ -267,12 +266,16 @@
       fill-opacity: 0.7;
     }
 
+    .intersectlink {
+      stroke-dasharray: 8 !important;
+    }
+
     .link {
       stroke: #000;
       stroke-width: 1;
       fill-opacity: 0;
       stroke-opacity: 1;
-      stroke-dasharray: 8;
+      stroke-dasharray: 3;
       /* stroke-opacity: 0.5; */
       /* pointer-events: none; */
     }
@@ -289,15 +292,14 @@
       stroke: #000;
     }
 
-.rdfclass
-{
- fill: #c9c !important;
-}
+    .rdfclass {
+      fill: #c9c !important;
+    }
 
-.owlclass
-{
-fill: #acf !important;
-}
+    .owlclass {
+      fill: #acf !important;
+    }
+
     .class,
     .object,
     .disjoint {
@@ -306,7 +308,7 @@ fill: #acf !important;
 
     .intersectionNode {
       stroke-dasharray: 8;
-      fill: #fff !important;
+      fill: #acf !important;
     }
 
 
@@ -558,6 +560,13 @@ fill: #acf !important;
     #queryResult {
       background: rgba(209, 209, 209, 0.2);
     }
+    .gridTitle:hover {
+    background: #333;
+}
+
+.selectedNode {
+      fill: red !important;
+    }
   </style>
 </head>
 
@@ -567,6 +576,29 @@ fill: #acf !important;
 
     <div class="row">
       <div class="col-lg-2 col-md-3  col-sm-4 col-xs-4" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
+        <div class="myGrid accordionHint">
+          <h3>
+            <div class="gridTitle">Hints</div>
+          </h3>
+          <div>
+            <div><img src="img/owl.jpg" width="40px"> OWL class</div>
+            <div><img src="img/rdfs.jpg" width="40px"> RDFS class </div>
+            <div><img src="img/external.jpg" width="40px"> Other class</div>
+            <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
+            <div><img src="img/equivalent.png" width="40px"> Equivalent Class</div>
+            
+            <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
+            <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
+            <div></br></br>
+            - Double click on equivalent class to view the classes</br>
+            - Click on property edge to view the detail</br>
+            - Click on the circle to view datatype property details
+            </div>
+
+            
+          </div>
+        </div>
+
         <div class="myGrid accordion">
           <h3>
             <div class="gridTitle">Options</div>
@@ -603,7 +635,7 @@ fill: #acf !important;
             </div>
             <div>
               <label id="querymode_lbl" for="querymode" class="checkbox_container">Query mode
-              <input type="checkbox" id="querymode">
+              <input type="checkbox" id="querymode" >
               <span class="checkmark"></span></label>
             </div>
             <div>
@@ -632,10 +664,10 @@ fill: #acf !important;
             <input type="checkbox" id="toggle_all_select">
             <span class="checkmark"></span>
           </label>
-          
-          <div id="node_list">
+
+            <div id="node_list">
+            </div>
           </div>
-        </div>
         </div>
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
