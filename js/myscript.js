@@ -141,6 +141,12 @@ $(document).ready(function () {
         collapsible: true,
         heightStyle: "content"
     });
+    $(".accordionHint").accordion({
+        collapsible: true,
+        heightStyle: "content",
+        active: false 
+    });
+  
 
     $("#dataset_name").on("change", function () {
         userSelection = [];
@@ -534,7 +540,7 @@ function init() {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "arrowhead" + d.source.name;
+            return "arrowhead" + d.source.name.replace(/\s/g,'');
         })
         .attr("refX", function (d) {
             // return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width    
@@ -560,7 +566,7 @@ function init() {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "endarrowhead" + d.target.name + d.linkid;
+            return "endarrowhead" + d.target.name.replace(/\s/g,'') + d.linkid;
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width  
@@ -594,19 +600,20 @@ function init() {
     link.enter().append("path")
         .attr("class",
         function (d) {
-            if (d.intersect == 1 || d.subclass == 1) return "link";
+            if (d.intersect == 1) return "link intersectlink"
+            else if (d.subclass == 1) return "link";
             else return "link solidline"
         })
         .attr('marker-start', function (d) {
             if (d.bidirection == 1)
-                return 'url(#arrowhead' + d.source.name + ')';
+                return 'url(#arrowhead' + d.source.name.replace(/\s/g,'') + ')';
             else return false;
         })
         .attr('marker-end', function (d) {
             if (d.intersect == 1)
                 return false;
             else
-                return 'url(#endarrowhead' + d.target.name + d.linkid + ')';
+                return 'url(#endarrowhead' + d.target.name.replace(/\s/g,'') + d.linkid + ')';
         });
 
     thicklink = linkg.selectAll("path.thicklink").data(net.links, getlinkid);
@@ -668,7 +675,8 @@ function init() {
            
         })
         .on("dblclick", equivalentClass)
-        .on('click', connectedNodes);
+        .on('mouseover', connectedNodes)
+        .on('click', sparqlQuery);
 
 
     newnode.append("circle")
@@ -703,7 +711,8 @@ function init() {
                 return "block";
             else
                 return "none";
-        }).on('click', connectedNodes)
+        }).on('mouseover', connectedNodes)
+        .on('click',sparqlQuery);
 
 
     set = node.filter(function (d) {
@@ -881,8 +890,7 @@ function neighboring(a, b) {
     // return linkedByIndex[a.index + "," + b.index];
     return linkedByIndex[a.class + "," + b.class];
 }
-
-function connectedNodes() {
+function sparqlQuery(){
     if (querymode) {
         d = d3.select(this).node().__data__;
         query_property_filter = '';
@@ -891,7 +899,9 @@ function connectedNodes() {
         $(this).addClass("queryNode")
         return;
     }
-
+}
+function connectedNodes() {
+    
     if (d3.select("#expandDivClass").style("left") == "auto")
         d3.select("#expandDivClass").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
 
@@ -970,7 +980,7 @@ function expandLink() {
     $.ajax({
         type: "POST",
         url: apiurl + "property",
-        data: { 's': source, 't': target, 'b': bidirection, 'limit': 5, 'database_name': database_name }
+        data: { 's': source, 't': target, 'b': bidirection, 'limit': 100, 'database_name': database_name }
     }).done(function (json) {
         p_data = json;
         // drawPropertyInfo(source,target);
@@ -1297,7 +1307,7 @@ function initInstanceGraph(gdata) {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "endarrowhead" + d.target.name + d.linkid;
+            return "endarrowhead" + d.target.name.replace(/\s/g,'') + d.linkid;
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width         
@@ -1318,7 +1328,7 @@ function initInstanceGraph(gdata) {
             return "link solidline"
         })
         .attr('marker-end', function (d) {
-            return 'url(#endarrowhead' + d.target.name + d.linkid + ')';
+            return 'url(#endarrowhead' + d.target.name.replace(/\s/g,'') + d.linkid + ')';
         }).attr({
             'id': function (d, i) { return 'property_edge' + i }
         });
@@ -1456,13 +1466,14 @@ function classDetail(c) {
             'database_name': database_name
         }
     }).done(function (data) {
-        if (data == '') {
-            $("#expandDivClass").hide(); return;
-        }
+        // if (data == '') {
+        //     $("#expandDivClass").hide(); return;
+        // }
         $("#expandDivClass").show();
         $("#expandDivClass_content *").remove();
         $("#class_name").html(getName(c) + " - " + classlist_arr[c]);
         $("#expandDivClass_content").append("<div class='resourceUri'><a href='" + c + "' class='result_link' target='_new'>" + c + "</a></div>");
+        if (data == '') return;
         $("#expandDivClass_content").append("<table><th>Datatype Property</th><th>Datatype</th></table>");
         $(data).each(function () {
             $("#expandDivClass table").append("<tr><td><a href='" + this.p + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" + getName(this.p) + " - " + beautifyNumber(this.count) + "</td><td>" + (this.datatype).join(",") + "</td></tr>");
