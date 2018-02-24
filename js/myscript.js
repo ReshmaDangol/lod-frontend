@@ -45,7 +45,7 @@ $(document).ready(function () {
     $('#paginator').bootpag({
         total: 20,
         page: 1,
-        maxVisible :5
+        maxVisible: 5
     }).on('page', function (event, num) {
         if (typeof num == "undefined") num = 1
         // $(".content2").html("Page " + num); // or some ajax content loading...        
@@ -61,7 +61,7 @@ $(document).ready(function () {
                 'p_filter': JSON.stringify(query_property_filter),
                 'database_name': database_name,
                 'limit': 10,
-                'offset': (num-1) * 10
+                'offset': (num - 1) * 10
             }
         }).done(function (json) {
             console.log("ajax call")
@@ -120,18 +120,18 @@ $(document).ready(function () {
     });
 
     $("#toggle_all_select").on("change", function () {
-        if ($("#toggle_all_select").prop("checked")) {          
+        if ($("#toggle_all_select").prop("checked")) {
             $(".nodeList").each(function () {
                 var node = $(this).attr("data-uri");
                 if ($.inArray(node, userSelection) == -1) {
                     addNode(node);
-                }            
-        
-                $(this).addClass("addedNode");                
+                }
+
+                $(this).addClass("addedNode");
             })
             loadGraph(userSelection);
-        }      
-        
+        }
+
     });
 
     $("#toggle_inverseof").on("click", function () {
@@ -141,12 +141,12 @@ $(document).ready(function () {
         collapsible: true,
         heightStyle: "content"
     });
-    $(".accordionHint").accordion({
+    $(".accordionHide").accordion({
         collapsible: true,
         heightStyle: "content",
-        active: false 
+        active: false
     });
-  
+
 
     $("#dataset_name").on("change", function () {
         userSelection = [];
@@ -154,9 +154,9 @@ $(document).ready(function () {
         $("#expandDivProperty").hide();
         database_name = $("#dataset_name").val();
         loadClass();
-        $("#toggle_all_select").prop("checked",false);
+        $("#toggle_all_select").prop("checked", false);
         $(".accordion").accordion("activate", 1);
-        
+
     });
     $("#locknode").on("change", function () {
         $(".fixed").removeClass("fixed");
@@ -217,10 +217,9 @@ $(document).ready(function () {
         if ($.inArray(node, userSelection) == -1) {
             addNode(node);
         }
-        else
-        {
+        else {
             removeNode(node);
-            $("#toggle_all_select").prop("checked",false) 
+            $("#toggle_all_select").prop("checked", false)
         }
 
         $(this).toggleClass("addedNode");
@@ -253,9 +252,12 @@ function loadClass() {
         });
         var vocab = [];
         $.each(vocab_temp, function (i, el) {
-            if ($.inArray(el, vocab) === -1) vocab.push(el);
+            if ($.inArray(el, vocab) === -1) {
+                $("#namespaceList").append("<div><a href='" + el + "' target='_blank'>"+el.split("//")[1]+"</a></div>");
+                vocab.push(el);
+            }
         });
-        console.log(vocab);
+        // console.log(vocab);
         if (height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
     });
 
@@ -439,6 +441,9 @@ function loadGraph(userSelection) {
         .attr("width", width)
         .attr("height", height)
         .attr("id", "mainGraph")
+        // .call(d3.behavior.zoom().on("zoom", function () {
+        //     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+        // })).append("g")
     // .on("mousemove", mousemove);
 
 
@@ -540,7 +545,7 @@ function init() {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "arrowhead" + d.source.name.replace(/\s/g,'');
+            return "arrowhead" + d.source.name.replace(/\s/g, '');
         })
         .attr("refX", function (d) {
             // return -(d.source.size ? d.source.size + dr : dr + 1) * 3 + 6;    // Add the marker's width    
@@ -566,7 +571,7 @@ function init() {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "endarrowhead" + d.target.name.replace(/\s/g,'') + d.linkid;
+            return "endarrowhead" + d.target.name.replace(/\s/g, '') + d.linkid;
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width  
@@ -606,14 +611,14 @@ function init() {
         })
         .attr('marker-start', function (d) {
             if (d.bidirection == 1)
-                return 'url(#arrowhead' + d.source.name.replace(/\s/g,'') + ')';
+                return 'url(#arrowhead' + d.source.name.replace(/\s/g, '') + ')';
             else return false;
         })
         .attr('marker-end', function (d) {
             if (d.intersect == 1)
                 return false;
             else
-                return 'url(#endarrowhead' + d.target.name.replace(/\s/g,'') + d.linkid + ')';
+                return 'url(#endarrowhead' + d.target.name.replace(/\s/g, '') + d.linkid + ')';
         });
 
     thicklink = linkg.selectAll("path.thicklink").data(net.links, getlinkid);
@@ -646,14 +651,16 @@ function init() {
         .attr("class", function (d) {
             var temp = d.class;
             circle_class = '';
-            if(temp.indexOf("/rdf-schema") >=0){
+            if (temp.indexOf("/rdf-schema") >= 0) {
                 circle_class = "rdfclass";
             }
-            else if(temp.indexOf("/owl#") >=0){
+            else if (temp.indexOf("/owl#") >= 0) {
                 circle_class = "owlclass";
             }
             if (d.intersect == 1)
                 circle_class += ' class intersectionNode';
+            if (d.equivalent == 1)
+                circle_class += '  equivNode'
             return circle_class + " node" + (d.size ? "" : " leaf");
         })
         .attr("id", function (d) {
@@ -669,10 +676,10 @@ function init() {
             if (typeof expand[d.group] != "undefined" || expand[d.group] == true || d.size == 1) return "default";
             else return "pointer";
         })
-        .style("fill", function (d) {  
+        .style("fill", function (d) {
             if (d.equivalent == 1 && !$(this).hasClass("leaf"))
-                return "#fff";      
-           
+                return "#fff";
+
         })
         .on("dblclick", equivalentClass)
         .on('mouseover', connectedNodes)
@@ -683,13 +690,13 @@ function init() {
         .attr("class", function (d) {
             var temp = d.class;
             circle_class = '';
-            if(temp.indexOf("/rdf-schema") >=0){
+            if (temp.indexOf("/rdf-schema") >= 0) {
                 circle_class = "rdfclass";
             }
-            else if(temp.indexOf("/owl#") >=0){
+            else if (temp.indexOf("/owl#") >= 0) {
                 circle_class = "owlclass";
             }
-            return circle_class + " node" + (d.size ? "" : " leaf");
+            return circle_class + " node " + (d.size ? "" : " leaf");
         })
         .attr("r", function (d) {
             // return (d.size ? d.size + dr : dr + 1) * 3; //size of circles
@@ -712,7 +719,7 @@ function init() {
             else
                 return "none";
         }).on('mouseover', connectedNodes)
-        .on('click',sparqlQuery);
+        .on('click', sparqlQuery);
 
 
     set = node.filter(function (d) {
@@ -743,13 +750,13 @@ function init() {
     newnode.append("text").attr("class", function (d) {
         var temp = d.class;
         circle_class = '';
-        if(temp.indexOf("/rdf-schema") >=0){
+        if (temp.indexOf("/rdf-schema") >= 0) {
             circle_class = "rdfclasstext";
         }
-        else if(temp.indexOf("/owl#") >=0){
+        else if (temp.indexOf("/owl#") >= 0) {
             circle_class = "owlclasstext";
         }
-        
+
         return circle_class + "node_label";
     })
         .text(function (d) {
@@ -890,7 +897,7 @@ function neighboring(a, b) {
     // return linkedByIndex[a.index + "," + b.index];
     return linkedByIndex[a.class + "," + b.class];
 }
-function sparqlQuery(){
+function sparqlQuery() {
     if (querymode) {
         d = d3.select(this).node().__data__;
         query_property_filter = '';
@@ -901,7 +908,10 @@ function sparqlQuery(){
     }
 }
 function connectedNodes() {
-    
+    d = d3.select(this).node().__data__;
+    if (d.equivalent == 1 && !$(this).hasClass("leaf") && $(this).hasClass("equivNode"))
+        return
+
     if (d3.select("#expandDivClass").style("left") == "auto")
         d3.select("#expandDivClass").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
 
@@ -1174,7 +1184,7 @@ function queryProperty(s, p, o) {
 // }
 
 function loadProperty(p) {
-    
+
     $.ajax({
         type: "POST",
         url: apiurl + "query/propertylist",
@@ -1236,8 +1246,8 @@ function query() {
     //   "destroy": true
     // });
 
-  
- 
+
+
 }
 function isValidInput(input) {
     if (input.indexOf("http://") == 0 || input.indexOf("https://") == 0) return "<span class='instanceLink glyphicon glyphicon-search' onclick='instanceGraph(\"" + input + "\")'></span>";
@@ -1252,7 +1262,7 @@ function instanceGraph(i) {
     d3.select("#instanceGraph *").remove();
     vis_ = d3.select("#instanceGraph").append("svg");
     vis_.attr("width", $("#instanceGraph").width())
-        .attr("height", 700);
+        .attr("height", 500);
 
     $("#instanceInfo").height(680);//20px padding
     $.ajax({
@@ -1307,7 +1317,7 @@ function initInstanceGraph(gdata) {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("id", function (d) {
-            return "endarrowhead" + d.target.name.replace(/\s/g,'') + d.linkid;
+            return "endarrowhead" + d.target.name.replace(/\s/g, '') + d.linkid;
         })
         .attr("refX", function (d) {
             // return (d.target.size ? d.target.size + dr : dr + 1) * 3 + 4;    // Add the marker's width         
@@ -1328,7 +1338,7 @@ function initInstanceGraph(gdata) {
             return "link solidline"
         })
         .attr('marker-end', function (d) {
-            return 'url(#endarrowhead' + d.target.name.replace(/\s/g,'') + d.linkid + ')';
+            return 'url(#endarrowhead' + d.target.name.replace(/\s/g, '') + d.linkid + ')';
         }).attr({
             'id': function (d, i) { return 'property_edge' + i }
         });
@@ -1429,7 +1439,7 @@ function initInstanceGraph(gdata) {
 }
 function dragstart_(d) {
     // if (querymode)
-    // d3.select(this).classed("fixed", d.fixed = true);
+    d3.select(this).classed("fixed", d.fixed = true);
 }
 
 function instanceInfo(d) {

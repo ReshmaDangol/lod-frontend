@@ -560,11 +560,12 @@
     #queryResult {
       background: rgba(209, 209, 209, 0.2);
     }
-    .gridTitle:hover {
-    background: #333;
-}
 
-.selectedNode {
+    .gridTitle:hover {
+      background: #333;
+    }
+
+    .selectedNode {
       fill: red !important;
     }
   </style>
@@ -576,7 +577,7 @@
 
     <div class="row">
       <div class="col-lg-2 col-md-3  col-sm-4 col-xs-4" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
-        <div class="myGrid accordionHint">
+        <div class="myGrid accordionHide">
           <h3>
             <div class="gridTitle">Hints</div>
           </h3>
@@ -586,19 +587,21 @@
             <div><img src="img/external.jpg" width="40px"> Other class</div>
             <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
             <div><img src="img/equivalent.png" width="40px"> Equivalent Class</div>
-            
+
             <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
             <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
-            <div></br></br>
-            - Double click on equivalent class to view the classes</br>
-            - Click on property edge to view the detail</br>
-            - Click on the circle to view datatype property details
+            <div>
+              </br>
+              </br>
+              - Double click on equivalent class to view the classes</br>
+              - Click on property edge to view the detail</br>
+              - Click on the circle to view datatype property details
             </div>
 
-            
+
           </div>
         </div>
-
+ 
         <div class="myGrid accordion">
           <h3>
             <div class="gridTitle">Options</div>
@@ -669,6 +672,14 @@
             </div>
           </div>
         </div>
+        <div class="myGrid accordionHide">
+            <h3>
+              <div class="gridTitle">Namespaces</div>
+            </h3>
+            <div id="namespaceList">
+  
+            </div>
+          </div>
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
       </div>
