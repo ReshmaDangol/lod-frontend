@@ -544,6 +544,12 @@ function init() {
             'xoverflow': 'visible',
             'markerUnits': 'userSpaceOnUse'
         })
+        // .attr("orient", function (d) {
+        //     if(d.source != d.target)
+        //     return "auto";
+        //     else
+        //     return 92;
+        //   })
         .attr("id", function (d) {
             return "arrowhead" + d.source.name.replace(/\s/g, '');
         })
@@ -564,12 +570,18 @@ function init() {
         .attr({
             'viewBox': '3 -5 10 10',
             // 'refY': -3,
-            'orient': 'auto',
+            // 'orient': 'auto',
             'markerWidth': 13,
             'markerHeight': 13,
             'xoverflow': 'visible',
             'markerUnits': 'userSpaceOnUse'
         })
+        .attr("orient", function (d) {
+            if(d.source != d.target)
+            return "auto";
+            else
+            return 96;
+          })
         .attr("id", function (d) {
             return "endarrowhead" + d.target.name.replace(/\s/g, '') + d.linkid;
         })
@@ -610,6 +622,7 @@ function init() {
             else return "link solidline"
         })
         .attr('marker-start', function (d) {
+            if(d.source ==d.target) return false;
             if (d.bidirection == 1)
                 return 'url(#arrowhead' + d.source.name.replace(/\s/g, '') + ')';
             else return false;
@@ -805,6 +818,23 @@ function init() {
                     dy = d.target.y - d.source.y,
                     dr = 0;
                 if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
+
+                var x1 = d.source.x,
+                y1 = d.source.y,
+                x2 = d.target.x,
+                y2 = d.target.y
+                  if ( x1 === x2 && y1 === y2 ) {
+                  xRotation = -45;
+                  sweep = 1; 
+                  largeArc = 1;
+                  drx = 35;
+                  dry = 25;
+                  x2 = x2 + 1;
+                  y2 = y2 + 1;
+                  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
+                } 
+
+                
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
 
@@ -817,6 +847,25 @@ function init() {
                     dy = d.target.y - d.source.y,
                     dr = 0;
                 if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
+
+
+                var x1 = d.source.x,
+                y1 = d.source.y,
+                x2 = d.target.x,
+                y2 = d.target.y
+                  if ( x1 === x2 && y1 === y2 ) {
+                      console.log(1)
+                  xRotation = -45;
+                  sweep = 1; 
+                  largeArc = 1;
+                  drx = 35;
+                  dry = 25;
+                  x2 = x2 + 1;
+                  y2 = y2 + 1;
+                  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
+                } 
+
+
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
             .attr('display', function (d) {
@@ -824,9 +873,9 @@ function init() {
                 var x2 = $(this).attr("x2")
                 var y1 = $(this).attr("y1")
                 var y2 = $(this).attr("y2")
-                if (x1 == x2 && y1 == y2)
-                    return 'none';
-                else
+                // if (x1 == x2 && y1 == y2)
+                //     return 'none';
+                // else
                     return 'block';
             })
 
@@ -908,6 +957,7 @@ function sparqlQuery() {
     }
 }
 function connectedNodes() {
+    if ($(this).hasClass("intersectionNode")) return;
     d = d3.select(this).node().__data__;
     if (d.equivalent == 1 && !$(this).hasClass("leaf") && $(this).hasClass("equivNode"))
         return
@@ -1053,7 +1103,8 @@ function cssPropertyInfo(left, right) {
                 + "'></article></div></div></div>"
             );
         $.each(temp, function (j, val) {
-            if (j > 0 || val["count_"] == 0) return;
+            // if (j > 0 || val["count_"] == 0) return;
+            if (j > 0) return;
             $("#inverselist" + i).append("<div class='col-lg-12 p_name' onclick='queryProperty(\"" + d["c2"] + "\",\"" + val["p"] + "\",\"" + d["c1"] + "\")'>" +
                 getName(val["p"])
                 + " - " + beautifyNumber(val["count_"]) + "</div>"
