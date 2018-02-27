@@ -641,7 +641,8 @@ function init() {
         .attr("display", function (d) {
             if (d.subclass == 1 || d.intersect == 1) return "none";
             return "block";
-        });
+        })
+   
 
     thicklink.filter(function (d) {
         return d.intersect != 1 && d.subclass != 1
@@ -970,6 +971,7 @@ function connectedNodes() {
         $(".selectedNode").removeClass("selectedNode");
         node.style("opacity", 1);
         link.style("opacity", 1);
+        thicklink.style("opacity", 1);
         toggle = 0;
     }
     if (toggle == 0) {
@@ -990,6 +992,9 @@ function connectedNodes() {
             return d.class == o.source.class | d.class == o.target.class ? 1 : 0.1;
             // return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
         });
+        thicklink.style("opacity", function (o) {
+            return d.class == o.source.class | d.class == o.target.class ? 1 : 0.1;
+        });
         //Reduce the op
         toggle = 1;
     } else {
@@ -997,6 +1002,7 @@ function connectedNodes() {
         $(".selectedNode").removeClass("selectedNode");
         node.style("opacity", 1);
         link.style("opacity", 1);
+        thicklink.style("opacity", 1);
         toggle = 0;
     }
 }
