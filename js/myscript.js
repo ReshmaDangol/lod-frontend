@@ -1041,7 +1041,7 @@ function expandLink() {
     d = d3.select(this).node().__data__;
     var source = d.source.class;//nodes[0].class;
     var target = d.target.class;//nodes[0].class;
-    var bidirection = d.bidirection;
+    var bidirection = source == target ? 0: d.bidirection;
     if (d3.select("#expandDivProperty").style("left") == "auto") d3.select("#expandDivProperty").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
     $.ajax({
         type: "POST",
