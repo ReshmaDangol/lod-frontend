@@ -958,7 +958,7 @@ function sparqlQuery() {
     }
 }
 function connectedNodes() {
-    if ($(this).hasClass("intersectionNode")) return;
+    
     d = d3.select(this).node().__data__;
     if (d.equivalent == 1 && !$(this).hasClass("leaf") && $(this).hasClass("equivNode"))
         return
@@ -978,7 +978,7 @@ function connectedNodes() {
         //Reduce the opacity of all but the neighbouring nodes
         $(this).addClass("selectedNode")
         d = d3.select(this).node().__data__;
-        classDetail(d.class);
+        if (!$(this).hasClass("intersectionNode")) classDetail(d.class);
 
         node.style("opacity", function (o) {
             // console.log(neighboring(d, o),neighboring(o, d))
