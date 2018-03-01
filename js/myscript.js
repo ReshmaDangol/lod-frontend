@@ -784,7 +784,7 @@ function init() {
         d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
     });
     vis.selectAll("rect")
-        .attr("fill", "#f6f6f6")
+        .attr("fill", "rgba(255,255,255,0.5)")
         .attr("x", function (d) { return -d.bb.width / 2 - 2; })
         .attr("y", function (d) { return d.bb.height - 28; })
         .attr("width", function (d) { return d.bb.width + 4 })
