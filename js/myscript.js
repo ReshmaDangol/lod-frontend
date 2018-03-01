@@ -253,7 +253,7 @@ function loadClass() {
         var vocab = [];
         $.each(vocab_temp, function (i, el) {
             if ($.inArray(el, vocab) === -1) {
-                $("#namespaceList").append("<div><a href='" + el + "' target='_blank'>"+el.split("//")[1]+"</a></div>");
+                $("#namespaceList").append("<div><a href='" + el + "' target='_blank'>" + el.split("//")[1] + "</a></div>");
                 vocab.push(el);
             }
         });
@@ -442,9 +442,9 @@ function loadGraph(userSelection) {
         .attr("width", width)
         .attr("height", height)
         .attr("id", "mainGraph")
-        // .call(d3.behavior.zoom().on("zoom", function () {
-        //     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
-        // })).append("g")
+    // .call(d3.behavior.zoom().on("zoom", function () {
+    //     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+    // })).append("g")
     // .on("mousemove", mousemove);
 
 
@@ -578,11 +578,11 @@ function init() {
             'markerUnits': 'userSpaceOnUse'
         })
         .attr("orient", function (d) {
-            if(d.source != d.target)
-            return "auto";
+            if (d.source != d.target)
+                return "auto";
             else
-            return 96;
-          })
+                return 96;
+        })
         .attr("id", function (d) {
             return "endarrowhead" + d.target.name.replace(/\s/g, '') + d.linkid;
         })
@@ -623,7 +623,7 @@ function init() {
             else return "link solidline"
         })
         .attr('marker-start', function (d) {
-            if(d.source ==d.target) return false;
+            if (d.source == d.target) return false;
             if (d.bidirection == 1)
                 return 'url(#arrowhead' + d.source.name.replace(/\s/g, '') + ')';
             else return false;
@@ -643,7 +643,7 @@ function init() {
             if (d.subclass == 1 || d.intersect == 1) return "none";
             return "block";
         })
-   
+
 
     thicklink.filter(function (d) {
         return d.intersect != 1 && d.subclass != 1
@@ -697,7 +697,7 @@ function init() {
 
         })
         .on("dblclick", equivalentClass)
-        .on('mouseover', connectedNodes)
+        // .on('mouseover', connectedNodes)
         .on('click', sparqlQuery);
 
 
@@ -733,7 +733,8 @@ function init() {
                 return "block";
             else
                 return "none";
-        }).on('mouseover', connectedNodes)
+        })
+        // .on('mouseover', connectedNodes)
         .on('click', sparqlQuery);
 
 
@@ -762,6 +763,7 @@ function init() {
         .attr("class", "nofill set_path")
         .attr("d", "m 9,5 c 0,-2 0,-4 0,-6 0,0 0,0 0,0 0,0 0,-1.8 -1,-2.3 -0.7,-0.6 -1.7,-0.8 -2.9,-0.8 -1.2,0 -2,0 -3,0.8 -0.7,0.5 -1,1.4 -1,2.3 0,2 0,4 0,6")
 
+    newnode.append("rect")
     newnode.append("text").attr("class", function (d) {
         var temp = d.class;
         circle_class = '';
@@ -776,9 +778,22 @@ function init() {
     })
         .text(function (d) {
             return d.name
-        }).attr("pointer-events", "none").attr("text-anchor", "middle")
+        }).attr("pointer-events", "none").attr("text-anchor", "middle").call(getBB);
+
+    vis.selectAll("text").each(function (d, i) {
+        d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
+    });
+    vis.selectAll("rect")
+        .attr("fill", "#f6f6f6")
+        .attr("x", function (d) { return -d.bb.width / 2 - 2; })
+        .attr("y", function (d) { return d.bb.height - 28; })
+        .attr("width", function (d) { return d.bb.width + 4 })
+        .attr("height", function (d) { return d.bb.height + 2; });
 
 
+    function getBB(selection) {
+        selection.each(function (d) { d.bb = this.getBBox(); })
+    }
     // var node_drag = force.drag()
     //   .on("dragstart", dragstart)
     // .on("drag", dragmove)
@@ -822,19 +837,19 @@ function init() {
                 if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
 
                 var x1 = d.source.x,
-                y1 = d.source.y,
-                x2 = d.target.x,
-                y2 = d.target.y
-                  if ( x1 === x2 && y1 === y2 ) {
-                  xRotation = -45;
-                  sweep = 1; 
-                  largeArc = 1;
-                  drx = 35;
-                  dry = 25;
-                  x2 = x2 + 1;
-                  y2 = y2 + 1;
-                  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
-                }                 
+                    y1 = d.source.y,
+                    x2 = d.target.x,
+                    y2 = d.target.y
+                if (x1 === x2 && y1 === y2) {
+                    xRotation = -45;
+                    sweep = 1;
+                    largeArc = 1;
+                    drx = 35;
+                    dry = 25;
+                    x2 = x2 + 1;
+                    y2 = y2 + 1;
+                    return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
+                }
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
 
@@ -848,19 +863,19 @@ function init() {
                     dr = 0;
                 if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
                 var x1 = d.source.x,
-                y1 = d.source.y,
-                x2 = d.target.x,
-                y2 = d.target.y
-                  if ( x1 === x2 && y1 === y2 ) {
-                  xRotation = -45;
-                  sweep = 1; 
-                  largeArc = 1;
-                  drx = 35;
-                  dry = 25;
-                  x2 = x2 + 1;
-                  y2 = y2 + 1;
-                  return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
-                } 
+                    y1 = d.source.y,
+                    x2 = d.target.x,
+                    y2 = d.target.y
+                if (x1 === x2 && y1 === y2) {
+                    xRotation = -45;
+                    sweep = 1;
+                    largeArc = 1;
+                    drx = 35;
+                    dry = 25;
+                    x2 = x2 + 1;
+                    y2 = y2 + 1;
+                    return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
+                }
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
             .attr('display', function (d) {
@@ -950,9 +965,12 @@ function sparqlQuery() {
         $(this).addClass("queryNode")
         return;
     }
-}
-function connectedNodes() {
-    
+    // else {
+    //     connectedNodes()
+    // }
+    // }
+    // function connectedNodes() 
+    // {
     d = d3.select(this).node().__data__;
     if (d.equivalent == 1 && !$(this).hasClass("leaf") && $(this).hasClass("equivNode"))
         return
@@ -1035,7 +1053,7 @@ function expandLink() {
     d = d3.select(this).node().__data__;
     var source = d.source.class;//nodes[0].class;
     var target = d.target.class;//nodes[0].class;
-    var bidirection = source == target ? 0: d.bidirection;
+    var bidirection = source == target ? 0 : d.bidirection;
     if (d3.select("#expandDivProperty").style("left") == "auto") d3.select("#expandDivProperty").style("left", d3.event.x + 150 + "px").style("top", d3.event.y / 2 + "px");
     $.ajax({
         type: "POST",
