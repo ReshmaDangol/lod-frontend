@@ -344,7 +344,8 @@ function network(data, prev, index, expand) {
 
         if (expand[i]) {
             // the node should be directly visible
-            nm[n.name] = nodes.length;
+            // nm[n.name] = nodes.length;
+            nm[n.class] = nodes.length;
             nodes.push(n);
             if (gn[i]) {
                 // place new nodes at cluster location (plus jitter)
@@ -381,8 +382,8 @@ function network(data, prev, index, expand) {
             gm[u].link_count++;
             gm[v].link_count++;
         }
-        u = expand[u] ? nm[e.source.name] : nm[u];
-        v = expand[v] ? nm[e.target.name] : nm[v];
+        u = expand[u] ? nm[e.source.class] : nm[u];
+        v = expand[v] ? nm[e.target.class] : nm[v];
         var i = u + "|" + v + "|" + e.bidirection;
         var l = lm[i] || (lm[i] = { source: u, target: v, size: 0, bidirection: e.bidirection, intersect: e.intersect, subclass: e.subclass, linkid: e.linkid });
         l.size += 1;
@@ -833,9 +834,7 @@ function init() {
                   x2 = x2 + 1;
                   y2 = y2 + 1;
                   return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
-                } 
-
-                
+                }                 
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
 
@@ -848,14 +847,11 @@ function init() {
                     dy = d.target.y - d.source.y,
                     dr = 0;
                 if (d.subclass == 1) dr = Math.sqrt(dx * dx + dy * dy);
-
-
                 var x1 = d.source.x,
                 y1 = d.source.y,
                 x2 = d.target.x,
                 y2 = d.target.y
                   if ( x1 === x2 && y1 === y2 ) {
-                      console.log(1)
                   xRotation = -45;
                   sweep = 1; 
                   largeArc = 1;
@@ -865,8 +861,6 @@ function init() {
                   y2 = y2 + 1;
                   return "M" + x1 + "," + y1 + "A" + drx + "," + dry + " " + xRotation + "," + 1 + "," + 1 + " " + x2 + "," + y2;
                 } 
-
-
                 return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
             })
             .attr('display', function (d) {
@@ -877,7 +871,7 @@ function init() {
                 // if (x1 == x2 && y1 == y2)
                 //     return 'none';
                 // else
-                    return 'block';
+                return 'block';
             })
 
         var r = 32;
