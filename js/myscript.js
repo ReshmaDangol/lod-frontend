@@ -71,7 +71,7 @@ $(document).ready(function () {
                 $("#resultTable tbody").append(
                     function () {
                         if (typeof d.o === 'undefined' || !d.o) {
-                            $("#resultTable thead tr").html("<td>Subject</td>")
+                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td>")
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
@@ -80,7 +80,7 @@ $(document).ready(function () {
                                 "</tr>";
                         }
                         else if (typeof d.p === 'undefined' || !d.p) {
-                            $("#resultTable thead tr").html("<td>Subject</td><td>Object</td>");
+                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td><td>"+query_node_object+"</td>");
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
@@ -93,7 +93,7 @@ $(document).ready(function () {
                                 "</tr>";
                         }
                         else {
-                            $("#resultTable thead tr").html("<td>Subject</td><td>Predicate</td><td>Object</td>");
+                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td><td>"+query_node_property+"</td><td>Obj"+query_node_object+"ect</td>");
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
@@ -251,7 +251,8 @@ function loadClass() {
 
         });
         var vocab = [];
-        $.each(vocab_temp, function (i, el) {
+        $("#namespaceList").html('');
+        $.each(vocab_temp, function (i, el) {         
             if ($.inArray(el, vocab) === -1) {
                 $("#namespaceList").append("<div><a href='" + el + "' target='_blank'>" + el.split("//")[1] + "</a></div>");
                 vocab.push(el);
@@ -500,6 +501,7 @@ function init() {
         .size([width, height])
         .linkDistance(function (l, i) {
             var n1 = l.source, n2 = l.target;
+            console.log(l)
             // larger distance for bigger groups:
             // both between single nodes and _other_ groups (where size of own node group still counts),
             // and between two group nodes.
@@ -510,6 +512,8 @@ function init() {
             //
             // The latter was done to keep the single-link groups ('blue', rose, ...) close.   
             // console.log(n1)
+            if (l.subclass == 1 || l.intersect ==1)
+                return 200;
             var d = 250 +
                 Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
                     (n2.size || (n1.group != n2.group ? n2.group_data.size : 0))),
@@ -518,7 +522,7 @@ function init() {
                         (n2.link_count || (n1.group != n2.group ? n2.group_data.link_count : 0))),
                     100);
             // console.log(d);
-            return d;
+            return d*1.3;
             //return 150;
         })
         .linkStrength(function (l, i) {
@@ -654,7 +658,7 @@ function init() {
     var newnode = node.enter().append("g").attr("class", "circle_wrapper")
 
     function equivalentClass() {
-        if ($(this).hasClass("intersectionNode")) return;
+        // if ($(this).hasClass("intersectionNode")) return;
         d = d3.select(this).node().__data__;
         if (typeof d.group == "undefined") return;
         if (typeof expand[d.group] == "undefined" || expand[d.group] == false) expand[d.group] = !expand[d.group];
@@ -783,17 +787,16 @@ function init() {
     vis.selectAll("text").each(function (d, i) {
         d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
     });
+
     vis.selectAll("rect")
-        .attr("fill", "rgba(255,255,255,0.5)")
+        .attr("fill", "rgba(255,255,255,0.7)")
         .attr("x", function (d) { return -d.bb.width / 2 - 2; })
         .attr("y", function (d) { return d.bb.height - 28; })
         .attr("width", function (d) { return d.bb.width + 4 })
         .attr("height", function (d) { return d.bb.height + 2; });
+    
 
 
-    function getBB(selection) {
-        selection.each(function (d) { d.bb = this.getBBox(); })
-    }
     // var node_drag = force.drag()
     //   .on("dragstart", dragstart)
     // .on("drag", dragmove)
@@ -945,6 +948,11 @@ function dragstart(d) {
 //         force.resume();
 //     }
 // }
+
+function getBB(selection) {
+    selection.each(function (d) { d.bb = this.getBBox(); })
+}
+
 function releasenode(d) {
     d.fixed = false; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
     //force.resume();
@@ -1331,7 +1339,7 @@ function instanceGraph(i) {
     d3.select("#instanceGraph *").remove();
     vis_ = d3.select("#instanceGraph").append("svg");
     vis_.attr("width", $("#instanceGraph").width())
-        .attr("height", 500);
+        .attr("height",700);
 
     $("#instanceInfo").height(680);//20px padding
     $.ajax({
@@ -1365,9 +1373,9 @@ function initInstanceGraph(gdata) {
         .linkStrength(function (l, i) {
             return 1;
         })
-        .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
+        // .gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
         .charge(-500)    // ... charge is important to turn single-linked groups to the outside
-        .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
+        // .friction(0.5)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
         .start();
 
 
@@ -1444,11 +1452,24 @@ function initInstanceGraph(gdata) {
         .style("pointer-events", "none")
         .attr("startOffset", "50%")
         .text(function (d) { return getName(d.name) });
-
+    
+    newnode.append("rect");
     newnode.append("text").attr("class", "node_label")
         .text(function (d) {
             return d.name
-        }).attr("pointer-events", "none").attr("text-anchor", "middle")
+        }).attr("pointer-events", "none").attr("text-anchor", "middle").call(getBB);
+
+    vis_.selectAll("text").each(function (d, i) {
+            d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
+        });
+    
+    vis_.selectAll("rect")
+            .attr("fill", "rgba(255,255,255,0.7)")
+            .attr("x", function (d) { return -d.bb.width / 2 - 2; })
+            .attr("y", function (d) { return d.bb.height - 28; })
+            .attr("width", function (d) { return d.bb.width + 4 })
+            .attr("height", function (d) { return d.bb.height + 2; });
+        
 
     force_.on("tick", function () {
         link_.attr("x1", function (d) { return d.source.x; })
@@ -1512,6 +1533,8 @@ function dragstart_(d) {
 }
 
 function instanceInfo(d) {
+    $(".selectedInstanceNode").removeClass("selectedInstanceNode")
+    $(this).addClass("selectedInstanceNode")
     $.ajax({
         type: "POST",
         url: apiurl + "query/instance/property/object",
