@@ -225,7 +225,7 @@
 
     path.hull {
       fill: lightsteelblue;
-      fill-opacity: 0.7;
+      fill-opacity: 0.8;
     }
 
     line.link {
@@ -351,6 +351,7 @@
     .instanceLink {
       width: 12px;
       height: 15px;
+      cursor: pointer;
     }
 
     circle.node.queryNode {
@@ -565,8 +566,13 @@
       background: #333;
     }
 
-    .selectedNode {
+    .selectedNode, .selectedInstanceNode {
       fill: red !important;
+    }
+
+    .nodeList:hover {
+      background: #ccc;
+      border-bottom: 1px #fff solid;
     }
   </style>
 </head>
@@ -601,7 +607,7 @@
 
           </div>
         </div>
- 
+
         <div class="myGrid accordion">
           <h3>
             <div class="gridTitle">Options</div>
@@ -673,13 +679,13 @@
           </div>
         </div>
         <div class="myGrid accordionHide">
-            <h3>
-              <div class="gridTitle">Namespaces</div>
-            </h3>
-            <div id="namespaceList">
-  
-            </div>
+          <h3>
+            <div class="gridTitle">Namespaces</div>
+          </h3>
+          <div id="namespaceList">
+
           </div>
+        </div>
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
       </div>
