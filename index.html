@@ -340,6 +340,7 @@
 
     #graphContainer {
       padding: 0;
+      background: #F0F0F0
     }
 
     .result_link {
@@ -355,7 +356,9 @@
     }
 
     circle.node.queryNode {
-      fill: #B3B3B3;
+      /* fill: #B3B3B3; */
+      /* stroke: yellow;
+      stroke-width: 2; */
     }
 
     .result_link img {
@@ -566,7 +569,8 @@
       background: #333;
     }
 
-    .selectedNode, .selectedInstanceNode {
+    .selectedNode,
+    .selectedInstanceNode {
       fill: red !important;
     }
 
@@ -574,6 +578,12 @@
       background: #ccc;
       border-bottom: 1px #fff solid;
     }
+
+    .makePointer {
+      cursor: pointer;
+    }
+
+    #toggle_all_select_ {}
   </style>
 </head>
 
@@ -583,30 +593,6 @@
 
     <div class="row">
       <div class="col-lg-2 col-md-3  col-sm-4 col-xs-4" style="background:rgba(209, 209, 209, 0.2)" id="menubar_left">
-        <div class="myGrid accordionHide">
-          <h3>
-            <div class="gridTitle">Hints</div>
-          </h3>
-          <div>
-            <div><img src="img/owl.jpg" width="40px"> OWL class</div>
-            <div><img src="img/rdfs.jpg" width="40px"> RDFS class </div>
-            <div><img src="img/external.jpg" width="40px"> Other class</div>
-            <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
-            <div><img src="img/equivalent.png" width="40px"> Equivalent Class</div>
-
-            <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
-            <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
-            <div>
-              </br>
-              </br>
-              - Double click on equivalent class to view the classes</br>
-              - Click on property edge to view the detail</br>
-              - Click on the circle to view datatype property details
-            </div>
-
-
-          </div>
-        </div>
 
         <div class="myGrid accordion">
           <h3>
@@ -643,8 +629,8 @@
               <span class="checkmark"></span></label>
             </div>
             <div>
-              <label id="querymode_lbl" for="querymode" class="checkbox_container">Query mode
-              <input type="checkbox" id="querymode" >
+              <label id="querymode_lbl" for="querymode" class="checkbox_container">Query mode (double click circles)
+              <input type="checkbox" id="querymode" checked>
               <span class="checkmark"></span></label>
             </div>
             <div>
@@ -669,11 +655,12 @@
             <div class="gridTitle">Classes</div>
           </h3>
           <div>
-            <label id="toggle_all_select_" for="toggle_all_select" class="checkbox_container">All
+            <label id="toggle_all_select_" for="toggle_all_select" class="checkbox_container pull-left">All
             <input type="checkbox" id="toggle_all_select">
             <span class="checkmark"></span>
           </label>
-
+            <span id="clear_all" class="pull-right">clear graph</span>
+            <br clear="all">
             <div id="node_list">
             </div>
           </div>
@@ -686,6 +673,31 @@
 
           </div>
         </div>
+        <div class="myGrid accordionHide">
+          <h3>
+            <div class="gridTitle">Hints</div>
+          </h3>
+          <div>
+            <div><img src="img/owl.jpg" width="40px"> OWL class</div>
+            <div><img src="img/rdfs.jpg" width="40px"> RDFS class </div>
+            <div><img src="img/external.jpg" width="40px"> Other class</div>
+            <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
+            <div><img src="img/equivalent.png" width="40px"> Equivalent Class</div>
+
+            <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
+            <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
+            <div>
+              </br>
+              </br>
+              - Double click on equivalent class to view the classes</br>
+              - Click on property edge to view the detail</br>
+              - Click on the circle to view datatype property details
+            </div>
+
+
+          </div>
+        </div>
+
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
       </div>

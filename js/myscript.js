@@ -1,4 +1,6 @@
 $(function () {
+
+
     $('.selectpicker').selectpicker({
         // style: 'btn-info',
         size: false,
@@ -10,7 +12,7 @@ $(function () {
     // $("#expandDivProperty").on("click", "#close_popup", function () {
     //     $("#expandDivProperty").hide();
     // });
-
+    // $(document).tooltip();
     $(".close_popup").on("click", function () {
         $(this).parent().parent().hide();
     })
@@ -71,7 +73,7 @@ $(document).ready(function () {
                 $("#resultTable tbody").append(
                     function () {
                         if (typeof d.o === 'undefined' || !d.o) {
-                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td>")
+                            $("#resultTable thead tr").html("<td>" + query_node_subject + "</td>")
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
@@ -80,20 +82,24 @@ $(document).ready(function () {
                                 "</tr>";
                         }
                         else if (typeof d.p === 'undefined' || !d.p) {
-                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td><td>"+query_node_object+"</td>");
+                            if(query_node_object=='')
+                            $("#resultTable thead tr").html("<td>" + query_node_subject + "</td><td>" + query_node_property + "</td>");
+                            else
+                            $("#resultTable thead tr").html("<td>" + query_node_subject + "</td><td>" + query_node_object + "</td>");
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
                                 isValidInput(d.s.value) +
                                 "</td>" +
                                 "<td>" + htmlDecode(typeof d.o_label === 'undefined' ? (typeof d.o_name === 'undefined' ? d.o.value : d.o_name.value) : d.o_label.value) +
-                                "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                // "<a href='" + d.o.value + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                                isUrl(d.o.value) +
                                 isValidInput(d.o.value) +
                                 "</td>" +
                                 "</tr>";
                         }
                         else {
-                            $("#resultTable thead tr").html("<td>"+query_node_subject+"</td><td>"+query_node_property+"</td><td>Obj"+query_node_object+"ect</td>");
+                            $("#resultTable thead tr").html("<td>" + query_node_subject + "</td><td>" + query_node_property + "</td><td>" + query_node_object + "</td>");
                             return "<tr>" +
                                 "<td>" + htmlDecode(typeof d.s_label === 'undefined' ? (typeof d.s_name === 'undefined' ? d.s.value : d.s_name.value) : d.s_label.value) +
                                 "<a href='" + d.s.value + "' class='result_link glyphicon glyphicon-new-window' target='_new'></a>" +
@@ -131,8 +137,17 @@ $(document).ready(function () {
             })
             loadGraph(userSelection);
         }
-
     });
+
+    $("#clear_all").on("click", function () {
+        userSelection = [];
+        loadGraph(userSelection);
+        $(".addedNode").removeClass("addedNode");
+        $("#toggle_all_select").prop("checked", false);
+    });
+
+    
+
 
     $("#toggle_inverseof").on("click", function () {
         checkInverseOfToggle();
@@ -243,7 +258,7 @@ function loadClass() {
         classlist_arr = []
         $(data).each(function () {
             classlist_arr[this.class] = beautifyNumber(this.count);
-            $("#node_list").append("<div class='nodeList' data-uri='" + this.class + "'>" +
+            $("#node_list").append("<div class='nodeList' data-uri='" + this.class + "' title='" + this.class + "'>" +
                 // "<span class='nodeURI'> " + this.class.split(this.name)[0] + "</span>" +
                 "<span class='nodeName'>" + this.name + "</span>" +
                 "<span class='nodeCount'>" + beautifyNumber(this.count) + "</span></div>");
@@ -252,14 +267,14 @@ function loadClass() {
         });
         var vocab = [];
         $("#namespaceList").html('');
-        $.each(vocab_temp, function (i, el) {         
+        $.each(vocab_temp, function (i, el) {
             if ($.inArray(el, vocab) === -1) {
                 $("#namespaceList").append("<div><a href='" + el + "' target='_blank'>" + el.split("//")[1] + "</a></div>");
                 vocab.push(el);
             }
         });
         // console.log(vocab);
-        if (height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
+        // if (height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
     });
 
 }
@@ -283,7 +298,7 @@ var width = $("#graphContainer").width(),     // svg width
     off = 15,    // cluster hull offset
     expand = {}, // expanded clusters
     data, net, force, hullg, hull, linkg, link, nodeg, node, thicklink, backup_data, nodeg_, linkg_, force_, link_, node_;
-var height = $(window).height() * 0.7
+var height = $(window).height() 
 
 
 var curve = d3.svg.line()
@@ -485,6 +500,7 @@ function loadGraph(userSelection) {
 
     });
     var svg = d3.select("#mainGraph");
+    
 }
 
 function init() {
@@ -501,7 +517,6 @@ function init() {
         .size([width, height])
         .linkDistance(function (l, i) {
             var n1 = l.source, n2 = l.target;
-            console.log(l)
             // larger distance for bigger groups:
             // both between single nodes and _other_ groups (where size of own node group still counts),
             // and between two group nodes.
@@ -512,7 +527,7 @@ function init() {
             //
             // The latter was done to keep the single-link groups ('blue', rose, ...) close.   
             // console.log(n1)
-            if (l.subclass == 1 || l.intersect ==1)
+            if (l.subclass == 1 || l.intersect == 1)
                 return 200;
             var d = 250 +
                 Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
@@ -522,7 +537,7 @@ function init() {
                         (n2.link_count || (n1.group != n2.group ? n2.group_data.link_count : 0))),
                     100);
             // console.log(d);
-            return d*1.3;
+            return d * 1.3;
             //return 150;
         })
         .linkStrength(function (l, i) {
@@ -665,6 +680,14 @@ function init() {
         if (d.size > 1) {
             init();
         }
+        else if (querymode) {
+            d = d3.select(this).node().__data__;
+            query_property_filter = '';
+            querySubject(d.class);
+            $(".queryNode").removeClass("queryNode");
+            $(this).addClass("queryNode")
+           // return;
+        }
     }
     newnode.append("circle")
         .attr("class", function (d) {
@@ -794,7 +817,7 @@ function init() {
         .attr("y", function (d) { return d.bb.height - 28; })
         .attr("width", function (d) { return d.bb.width + 4 })
         .attr("height", function (d) { return d.bb.height + 2; });
-    
+
 
 
     // var node_drag = force.drag()
@@ -921,6 +944,11 @@ function init() {
         .on("dragstart", dragstart);
     node.call(node_drag);
 
+    // var svg = d3.select("#mainGraph")
+    // svg.call(d3.behavior.zoom().on("zoom", function () {
+    //     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+    //   }))
+    //   .append("g")
 }
 function dragstart(d) {
     if (locknode)
@@ -965,14 +993,7 @@ function neighboring(a, b) {
     return linkedByIndex[a.class + "," + b.class];
 }
 function sparqlQuery() {
-    if (querymode) {
-        d = d3.select(this).node().__data__;
-        query_property_filter = '';
-        querySubject(d.class);
-        $(".queryNode").removeClass("queryNode");
-        $(this).addClass("queryNode")
-        return;
-    }
+
     // else {
     //     connectedNodes()
     // }
@@ -1007,13 +1028,20 @@ function sparqlQuery() {
             return return_;
         });
 
+        node.style("pointer-events", function (o) {
+            // console.log(neighboring(d, o),neighboring(o, d))
+            var return_ = neighboring(d, o) | neighboring(o, d) ? "auto": "none";
+            // if (return_ == 1) console.log(d.name, o.name)
+            return return_;
+        });
+
         // console.log(link)
         link.style("opacity", function (o) {
             return d.class == o.source.class | d.class == o.target.class ? 1 : 0.1;
             // return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
         });
-        thicklink.style("opacity", function (o) {
-            return d.class == o.source.class | d.class == o.target.class ? 1 : 0.1;
+        thicklink.style("pointer-events", function (o) {
+            return d.class == o.source.class | d.class == o.target.class ? "auto" : "none";
         });
         //Reduce the op
         toggle = 1;
@@ -1021,7 +1049,9 @@ function sparqlQuery() {
         //Put them back to opacity=1
         $(".selectedNode").removeClass("selectedNode");
         node.style("opacity", 1);
+        node.style("pointer-events", "auto");
         link.style("opacity", 1);
+        thicklink.style("pointer-events", "auto");
         thicklink.style("opacity", 1);
         toggle = 0;
     }
@@ -1102,7 +1132,7 @@ function cssPropertyInfo(left, right) {
 
     jQuery.each(p_data, function (i, d) {
         $("#expandDivProperty_content").append("<div class='row propertylist'>" +
-            "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")'>" +
+            "<div class='p_name col-lg-12' onclick='queryProperty(\"" + d["c1"] + "\",\"" + d["p"] + "\",\"" + d["c2"] + "\")' title='" + d["p"] + "'>" +
             (d["max_cardinality"] > 1 ? "1..*" : "1..1") + " " +
             getName(d["p"]) + " - " +
             beautifyNumber(d["count"]) +
@@ -1131,7 +1161,7 @@ function cssPropertyInfo(left, right) {
         $.each(temp, function (j, val) {
             // if (j > 0 || val["count_"] == 0) return;
             if (j > 0) return;
-            $("#inverselist" + i).append("<div class='col-lg-12 p_name' onclick='queryProperty(\"" + d["c2"] + "\",\"" + val["p"] + "\",\"" + d["c1"] + "\")'>" +
+            $("#inverselist" + i).append("<div class='col-lg-12 p_name' onclick='queryProperty(\"" + d["c2"] + "\",\"" + val["p"] + "\",\"" + d["c1"] + "\")' title='" + val["p"] + "'>" +
                 getName(val["p"])
                 + " - " + beautifyNumber(val["count_"]) + "</div>"
             );
@@ -1140,13 +1170,19 @@ function cssPropertyInfo(left, right) {
     checkInverseOfToggle();
 }
 
+function queryDatatype(s, p) {
+    query_node_subject = s;
+    query_node_property = p;
+    query_node_object = '';
+    query();
+}
+
 function queryProperty(s, p, o) {
     // console.log(s)
     query_node_subject = s;
     query_node_object = o;
     query_node_property = p;
     query();
-
 }
 // function drawPropertyInfo(left, right) {
 //     d3.select("#expandDivProperty svg").remove();
@@ -1299,6 +1335,7 @@ function htmlDecode(html) {
 }
 
 function query() {
+    if (!querymode) return;
     $("#queryResult").show();
     $('#paginator').trigger('page');
     // $('#resultTable thead tr').html("<th>Name</th><th>Position</th><th>Office</th>");
@@ -1339,7 +1376,7 @@ function instanceGraph(i) {
     d3.select("#instanceGraph *").remove();
     vis_ = d3.select("#instanceGraph").append("svg");
     vis_.attr("width", $("#instanceGraph").width())
-        .attr("height",700);
+        .attr("height", 700);
 
     $("#instanceInfo").height(680);//20px padding
     $.ajax({
@@ -1452,7 +1489,7 @@ function initInstanceGraph(gdata) {
         .style("pointer-events", "none")
         .attr("startOffset", "50%")
         .text(function (d) { return getName(d.name) });
-    
+
     newnode.append("rect");
     newnode.append("text").attr("class", "node_label")
         .text(function (d) {
@@ -1460,16 +1497,16 @@ function initInstanceGraph(gdata) {
         }).attr("pointer-events", "none").attr("text-anchor", "middle").call(getBB);
 
     vis_.selectAll("text").each(function (d, i) {
-            d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
-        });
-    
+        d.bb = this.getBBox(); // get bounding box of text field and store it in texts array
+    });
+
     vis_.selectAll("rect")
-            .attr("fill", "rgba(255,255,255,0.7)")
-            .attr("x", function (d) { return -d.bb.width / 2 - 2; })
-            .attr("y", function (d) { return d.bb.height - 28; })
-            .attr("width", function (d) { return d.bb.width + 4 })
-            .attr("height", function (d) { return d.bb.height + 2; });
-        
+        .attr("fill", "rgba(255,255,255,0.7)")
+        .attr("x", function (d) { return -d.bb.width / 2 - 2; })
+        .attr("y", function (d) { return d.bb.height - 28; })
+        .attr("width", function (d) { return d.bb.width + 4 })
+        .attr("height", function (d) { return d.bb.height + 2; });
+
 
     force_.on("tick", function () {
         link_.attr("x1", function (d) { return d.source.x; })
@@ -1578,7 +1615,11 @@ function classDetail(c) {
         if (data == '') return;
         $("#expandDivClass_content").append("<table><th>Datatype Property</th><th>Datatype</th></table>");
         $(data).each(function () {
-            $("#expandDivClass table").append("<tr><td><a href='" + this.p + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" + getName(this.p) + " - " + beautifyNumber(this.count) + "</td><td>" + (this.datatype).join(",") + "</td></tr>");
+            $("#expandDivClass table").append("<tr><td title='" + this.p + "'><a href='" + this.p + "' class='result_link  glyphicon glyphicon-new-window' target='_new'></a>" +
+                "<span class='makePointer' onclick='queryDatatype(\"" + c + "\",\"" + this.p + "\")'>" +
+                getName(this.p) + " - " + beautifyNumber(this.count) +
+                "</span>" +
+                "</td><td>" + (this.datatype).join(",") + "</td></tr>");
         });
     });
 
