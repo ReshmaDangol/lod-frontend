@@ -584,6 +584,25 @@
     }
 
     #toggle_all_select_ {}
+
+    #help {
+      position: fixed;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+      margin: 10px;
+      z-index: 1;
+      opacity: 0.6;
+    }
+
+    #help:hover {
+      opacity: 1
+    }
+    li{
+    margin-top: 10px;
+}
+    .modal-dialog
+    {width: 750px; }
   </style>
 </head>
 
@@ -673,31 +692,6 @@
 
           </div>
         </div>
-        <div class="myGrid accordionHide">
-          <h3>
-            <div class="gridTitle">Hints</div>
-          </h3>
-          <div>
-            <div><img src="img/owl.jpg" width="40px"> OWL class</div>
-            <div><img src="img/rdfs.jpg" width="40px"> RDFS class </div>
-            <div><img src="img/external.jpg" width="40px"> Other class</div>
-            <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
-            <div><img src="img/equivalent.png" width="40px"> Equivalent Class</div>
-
-            <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
-            <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
-            <div>
-              </br>
-              </br>
-              - Double click on equivalent class to view the classes</br>
-              - Click on property edge to view the detail</br>
-              - Click on the circle to view datatype property details
-            </div>
-
-
-          </div>
-        </div>
-
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">
       </div>
@@ -769,6 +763,104 @@
       </div>
     </div>
   </div>
+
+  <div id="help"><img src="img/help.png" data-toggle="modal" data-target="#myModal" /></div>
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Notations</h4>
+        </div>
+        <div class="modal-body">
+          <div class="pull-left">
+          <div><img src="img/owl.jpg" width="40px"> OWL class</div>
+          <div><img src="img/rdfs.jpg" width="40px"> RDFS class </div>
+          <div><img src="img/external.jpg" width="40px"> Other class</div>
+        </div>
+        <div class="pull-right">
+          <div><img src="img/intersection.jpg" width="40px"> Intersection</div>
+          <div><img src="img/equivalent.png" width="40px"> A class with an Equivalent Class</div>
+
+          <div><img src="img/subclass.jpg" width="80px"> Subclass</div>
+          <div><img src="img/objectproperty.png" width="80px"> Object Property</div>
+        </div>
+        <br clear="all">
+        </div>
+        <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">Help</h4>
+          </div>
+          <div class="modal-body">
+              <div>
+                <ul>
+                    <li>
+                        Add/remove class circle
+                        <ul>
+                          <li>To toggle class in the graph, click on the class name in the left panel.</li>
+                            <li>
+                              To add all classes to the graph, click "All" checkbox.
+                            </li>
+                            <li>
+                                To remve all classes from the graph, click "clear all".
+                            </li>
+                        </ul>
+                    </li>
+                  <li>To view <strong>object properties</strong> between classes, click on property edge.
+                   </li>
+                  <li>To view <strong>datatype properties</strong> of a class,  between classes, click on the class circle.</li>
+                  <li>To view <strong>directly connected classes</strong> of a class, click on the class circle.
+                    <br> The deemed out circles and edges will not be clickable. To return to previous state, click on the highlighted (red) circle.</li>
+                  <li>To view the classes of an <strong>equivalent class</strong> group, double click on the class circle with double border.
+                  <br>
+                    To return the equivalent classes to previous state, click on the colored area connecting the circles
+                  </li>
+                  <li>
+                      To <strong>reposition</strong> class cirlces, enable "Lock Nodes" option then click and drag the circles.
+                  </li>
+                  <li>
+                      To go to actual the resource URI, click on the <img src="img/link.png" width="15px"/> icon.
+                  </li>
+                  <li>
+                      To view <strong>Namespaces</strong> used in the dataset, click on the Namespaces header.
+                  </li>
+                 
+                  <li>Filter
+                      <ul>
+                        <li>To show/hide object property edges, toggle "Object Property" checkbox</li>
+                        <li>To show/hide subclass edges, toggle "Subclass" checkbox</li>
+                        <li>To show/hide intersection classes, toggle "Class Intersection" checkbox</li>
+
+                      </ul>
+                  </li>
+                  <li>Instance view
+                    <ul>
+                      <li>
+                        To view the sample instances of a class, double click on a class circle.
+                      </li>
+                      <li>
+                          To view sample of shared instances between two classes, double click on intersection circle.
+                      </li>
+                      <li>
+                          To view sample instances of object property connecting two classes, click on  the property name.
+                      </li>
+                      <li>
+                          To view the instance details in a graph, click on the <img src="img/graph.png"/> icon.
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
 </body>
