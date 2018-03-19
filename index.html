@@ -624,7 +624,7 @@
               <option></option>
               <option value="archiveshub">Archiveshub</option>              
               <option value="linkedmdb">LinkedMDB</option>
-              <option value="education">Educational Program</option>
+              <option value="education">Dataset 2</option> <!-- Educational Program-->
               <option value="asean_law_SL">Asean Law</option>
               <!-- <option value="jamendo">Jamendo</option> -->
               <option value="ciard">CIARD RING (agricultural research)</option>
@@ -686,11 +686,21 @@
         </div>
         <div class="myGrid accordionHide">
           <h3>
-            <div class="gridTitle">Namespaces</div>
+            <div class="gridTitle">Dataset Summary</div>
           </h3>
-          <div id="namespaceList">
-
+          <div>
+          <div id="stats">
+            <div>Total Triples : <span id="size"></span></div>
+            <div>Total Classes : <span id="c_size"></span></div>
+            <div>Total Object Properties : <span id="op_size"></span></div>
+            <div>Total Datatype Properties : <span id="dp_size"></span></div>
           </div>
+          <hr>
+          <div>Namespaces</div>
+          <div id="namespaceList">
+          </div>
+          </div>
+
         </div>
       </div>
       <div class="col-lg-10 col-md-9  col-md-8 col-xs-8" id="graphContainer">

@@ -277,6 +277,19 @@ function loadClass() {
         // if (height < $("#menubar_left").height()) height = $("#menubar_left").height() //SVG height
     });
 
+    $.ajax({
+        type: "POST",
+        url: apiurl + "stats",
+        data: {
+            'database_name': database_name
+        }
+    }).done(function (data) {
+        $("#size").text(beautifyNumber(data[0].size))
+        $("#c_size").text(beautifyNumber(data[0].c_size))
+        $("#op_size").text(beautifyNumber(data[0].op_size))
+        $("#dp_size").text(beautifyNumber(data[0].dp_size))
+    });
+
 }
 function addNode(node) {
     if ($.inArray(node, userSelection) == -1) {
