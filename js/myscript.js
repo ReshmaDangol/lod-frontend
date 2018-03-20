@@ -829,7 +829,8 @@ function init() {
         .attr("x", function (d) { return -d.bb.width / 2 - 2; })
         .attr("y", function (d) { return d.bb.height - 28; })
         .attr("width", function (d) { return d.bb.width + 4 })
-        .attr("height", function (d) { return d.bb.height + 2; });
+        .attr("height", function (d) { return d.bb.height + 2; })
+        .attr("pointer-events","none");
 
 
 
