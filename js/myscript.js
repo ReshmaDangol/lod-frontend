@@ -1351,6 +1351,7 @@ function htmlDecode(html) {
 function query() {
     if (!querymode) return;
     $("#queryResult").show();
+    $('ul.bootpag>li').not('.prev').first().trigger('click');
     $('#paginator').trigger('page');
     // $('#resultTable thead tr').html("<th>Name</th><th>Position</th><th>Office</th>");
     // $('#resultTable').DataTable({
